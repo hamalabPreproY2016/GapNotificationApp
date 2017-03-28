@@ -2,13 +2,20 @@ package com.example.develop.gapnotificationapp;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainFragment extends Fragment {
 
@@ -44,14 +51,21 @@ public class MainFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        LinearLayout layout = (LinearLayout)view.findViewById(R.id.scrollViewContainer);
+        LineChart linechart = (LineChart)view.findViewById(R.id.chart);
 
-        for (int i = 0; i < 100; i++) {
-            TextView textView = new TextView(this.getActivity());
-            textView.setText("test" + i);
+        List<Entry> entries = new ArrayList<Entry>();
 
-            layout.addView(textView);
-        }
+        entries.add(new Entry(1, 1));
+        entries.add(new Entry(2, 3));
+        entries.add(new Entry(10, 5));
+
+        LineDataSet dataSet = new LineDataSet(entries, "test");
+        dataSet.setColor(Color.RED);
+        dataSet.setValueTextColor(Color.BLACK);
+
+        LineData lineData = new LineData(dataSet);
+        linechart.setData(lineData);
+        linechart.invalidate();
 
         return view;
     }
