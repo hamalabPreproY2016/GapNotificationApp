@@ -1,8 +1,12 @@
 package com.example.develop.gapnotificationapp;
 
+import android.Manifest;
 import android.app.FragmentTransaction;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -10,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -43,8 +48,34 @@ public class MainActivity extends AppCompatActivity
 
         MainFragment newFragment = new MainFragment();
         fragmentTransaction.replace(R.id.container, newFragment).commit();
-    }
 
+        checkPermission();
+    }
+    // パーミッションを確認
+    public void checkPermission(){
+
+        // 位置情報
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
+    }
+    // パーミッションダイアログの結果受取
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // パーミッションが必要な処理
+                    Toast.makeText(MainActivity.this, "位置情報が許可されました", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "ざけんな許可しろよ　終了するわ", Toast.LENGTH_SHORT).show();
+                    // パーミッションが得られなかった時
+                    moveTaskToBack(true);
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                }
+            }
+        }
+    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
