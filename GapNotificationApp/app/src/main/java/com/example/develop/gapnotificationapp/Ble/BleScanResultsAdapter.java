@@ -16,11 +16,15 @@ import com.polidea.rxandroidble.RxBleDevice;
 import com.polidea.rxandroidble.RxBleScanResult;
 
 import java.nio.ByteBuffer;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by ragro on 2017/03/28.
@@ -34,11 +38,19 @@ public class BleScanResultsAdapter extends BaseAdapter {
     private boolean flag = true;
 
     static class ViewHolder {
+        @BindView(R.id.ble_device_item_device_name)
         TextView deviceName;
+        @BindView(R.id.ble_device_item_mac_address)
         TextView macAddress;
+        @BindView(R.id.ble_device_item_rssi)
         TextView RSSI;
+        @BindView(R.id.ble_device_item_read)
         TextView readValue;
+        @BindView(R.id.ble_device_item_toggle)
         Button connectToggle;
+        public ViewHolder(View itemView) {
+            ButterKnife.bind(this, itemView);
+        }
     }
 
     public BleScanResultsAdapter(Context context){
@@ -65,12 +77,7 @@ public class BleScanResultsAdapter extends BaseAdapter {
         // 新規表示のとき
         if (convertView == null) {
             convertView = _inflater.inflate(_layoutID, null);
-            holder = new ViewHolder();
-            holder.deviceName = (TextView)convertView.findViewById(R.id.ble_device_item_device_name);
-            holder.macAddress = (TextView)convertView.findViewById(R.id.ble_device_item_mac_address);
-            holder.RSSI = (TextView)convertView.findViewById(R.id.ble_device_item_rssi);
-            holder.readValue = (TextView)convertView.findViewById(R.id.ble_device_item_read);
-            holder.connectToggle = (Button)convertView.findViewById(R.id.ble_device_item_toggle);
+            holder = new ViewHolder(convertView);
             holder.connectToggle.setOnClickListener(new ConnectClickListener());
             convertView.setTag(holder);
         } else {
