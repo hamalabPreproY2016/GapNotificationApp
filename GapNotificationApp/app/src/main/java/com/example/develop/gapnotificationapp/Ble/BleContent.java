@@ -42,7 +42,7 @@ abstract public class BleContent {
         connectionObservable = prepareConnectionObservable();
         Log.d(TAG, "できてる");
     }
-
+    // Observableの作成
     private Observable<RxBleConnection> prepareConnectionObservable() {
         return _bleDevice
                 .establishConnection(_context, false)
@@ -83,33 +83,6 @@ abstract public class BleContent {
     // 接続中
     public boolean Connected(){
         return _bleDevice.getConnectionState() == RxBleConnection.RxBleConnectionState.CONNECTED;
-    }
-
-    public void Test(){
-
-        Log.d(TAG, _context.getResources().getString(R.string.uuid_notify));
-//        _device = BleConnectApplication.getRxBleClient(_context).getBleDevice(_mac_address);
-
-        connectionObservable
-                .flatMap(rxBleConnection -> rxBleConnection.writeCharacteristic(_writeUUID, HexString.hexToBytes("00"))
-                        .flatMap(bytes ->rxBleConnection.setupNotification(_notifUUID))
-                        .doOnNext(notificationObservable -> {
-                            Log.d(TAG, "Notification has been set up");
-                            // Notification has been set up
-                        })
-                                .flatMap(notificationObservable -> notificationObservable)
-
-                )
-                .subscribe(
-                        bytes -> {
-                            Log.d(TAG, HexString.bytesToHex(bytes));
-                            Write(bytes);
-                            // Written data.
-                        },
-                        throwable -> {
-                            // Handle an error here.
-                        }
-                );
     }
 
 }
