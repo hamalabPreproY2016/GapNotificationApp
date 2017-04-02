@@ -30,7 +30,7 @@ public class BleScanResultsAdapter extends BaseAdapter {
     private LayoutInflater _inflater;
     private int _layoutID;
     private List<BleViewItem> _bleDevicesList= new ArrayList<BleViewItem>();
-    private Ble_0 _bleContet;
+    private BleContent _ble0;
     private boolean flag = true;
 
     static class ViewHolder {
@@ -45,25 +45,19 @@ public class BleScanResultsAdapter extends BaseAdapter {
 
         _inflater = LayoutInflater.from(context);
         _layoutID = R.layout.ble_scan_results_item;
-        _bleContet = new Ble_0(context,
+
+        _ble0 = new BleContent(context,
                 context.getResources().getString(R.string.ble_0_mac_adress),
                 UUID.fromString(context.getResources().getString(R.string.uuid_write)),
                 UUID.fromString(context.getResources().getString(R.string.uuid_notify)));
 
-//context.getResources().getString(R.string.ble_0_mac_adress)
-    }
-    private class Ble_0 extends BleContent {
-
-        public Ble_0(Context context, String mac_address, UUID WriteUUID, UUID NotifiUUID) {
-            super(context, mac_address, WriteUUID, NotifiUUID);
-        }
-
-        @Override
-        public void Notification(byte[] readData){
-            Log.d(TAG, "おおい");
-            int num = BinaryInteger.TwoByteToInteger(readData);
-            Log.d(TAG, Integer.toString(num));
-        }
+        _ble0.setNotificationListener(new NotificationListener() {
+            @Override
+            public void getNotification(byte[] bytes) {
+                int num = BinaryInteger.TwoByteToInteger(bytes);
+                Log.d("BLECONNTENT", Integer.toString(num));
+            }
+        });
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -152,13 +146,13 @@ public class BleScanResultsAdapter extends BaseAdapter {
         @Override
         public void onClick(View view) {
             String address =(String)view.getTag();
-            if(_bleContet.Connected()){
+            if(_ble0.Connected()){
                 ((Button)view).setText("CONNECT");
-                _bleContet.DisConnect();
+                _ble0.DisConnect();
             }else {
-                Log.d(_bleContet.TAG, "こっち?");
+                Log.d(_ble0.TAG, "Connect");
                 ((Button) view).setText("DISCONNECT");
-                _bleContet.Connect();
+                _ble0.Connect();
             }
         }
     }
