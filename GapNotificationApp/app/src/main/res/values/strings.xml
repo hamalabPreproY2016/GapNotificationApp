@@ -15,4 +15,9 @@
     <string name="ble_0_mac_adress">D4:86:B8:E7:5E:52</string>
     <string name="uuid_write">feedaa02-c497-4476-a7ed-727de7648ab1</string>
     <string name="uuid_notify">feedaa03-c497-4476-a7ed-727de7648ab1</string>
+
+    <string name="heart_rate">心拍</string>
+    <string name="emg">筋電位</string>
+    <string name="cancel">Cancel</string>
+
 </resources>
