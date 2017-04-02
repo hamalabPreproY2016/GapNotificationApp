@@ -3,16 +3,24 @@ package com.example.develop.gapnotificationapp;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.app.Fragment;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.develop.gapnotificationapp.Ble.BleScanResultsAdapter;
 import com.example.develop.gapnotificationapp.dummy.DummyContent.DummyItem;
 import com.polidea.rxandroidble.RxBleClient;
+
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -75,6 +83,7 @@ public class BLEFragment extends Fragment {
         _adapter = new BleScanResultsAdapter(getContext());
         _scanResults.setAdapter(_adapter);
         _rxBleClient = GapNotificationApplication.getRxBleClient(getContext());
+        registerForContextMenu(_scanResults);
         return view;
     }
 
@@ -131,7 +140,37 @@ public class BLEFragment extends Fragment {
     private void updateButtonUIState() {
         _scanToggle.setText(isScanning() ? R.string.ble_stop : R.string.ble_scan);
     }
+    // コンテキストメニューの作成
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
 
+        // BleContentのタイプを設定するためのコンテキストメニューを作成
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.setting_ble_content_type_context, menu);  //menuリスト
+        menu.setHeaderTitle(R.string.ble_scan_context_menu_header);  // タイトル
+        menu.setHeaderIcon(android.R.drawable.ic_menu_info_details);  // アイコン
+    }
+    // コンテキストメニューを選択した時の処理
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();  //（1）
+        int listPosition = info.position;  //（2）
+        Log.d("BLECONNTENT", Integer.toBinaryString(listPosition));
+//        Map<String, String> menu = _menuList.get(listPosition);  //（3）
+//
+//        int itemId = item.getItemId();
+//        switch(itemId) {  //（4）
+//            case R.id.menuListContextDesc:  //（5）
+//                String desc = menu.get("desc");
+//                Toast.makeText(MenuListActivity.this, desc, Toast.LENGTH_LONG).show();
+//                break;
+//            case R.id.menuListContextOrder:  //（6）
+//                // ここに注文処理を記述。
+//                break;
+//        }
+        return super.onContextItemSelected(item);
+    }
 
     /**
      * This interface must be implemented by activities that contain this
@@ -147,4 +186,5 @@ public class BLEFragment extends Fragment {
         // TODO: Update argument type and name
         void onListFragmentInteraction(DummyItem item);
     }
+
 }

@@ -7,36 +7,55 @@
         android:layout_height="wrap_content"
         android:layout_weight="1.26"
         android:orientation="vertical"
+        android:clickable="false"
+        android:descendantFocusability="blocksDescendants"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         >
 
         <TextView
             android:id="@+id/ble_device_item_device_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="DeviceName" />
+            android:text="DeviceName"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
         <TextView
             android:id="@+id/ble_device_item_mac_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="MACアドレス" />
+            android:text="MACアドレス"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
         <TextView
             android:id="@+id/ble_device_item_rssi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="RSSI" />
+            android:text="RSSI"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
         <TextView
             android:id="@+id/ble_device_item_read"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Read" />
+            android:text="Read"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
     </LinearLayout>
     <Button
         android:id="@+id/ble_device_item_toggle"
         android:layout_width="100dp"
         android:layout_height="match_parent"
-        android:text="Connect"/>
+        android:text="Connect"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 </LinearLayout>
