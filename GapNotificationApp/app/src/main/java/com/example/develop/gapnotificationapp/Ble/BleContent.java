@@ -19,20 +19,23 @@ import rx.subjects.PublishSubject;
  */
 
 abstract public class BleContent {
-    private String _mac_address;
-    private RxBleDevice _device;
+
+    public String TAG = "BLECONNTENT";
+
     private Context _context;
+
+    private String _mac_address;
     private UUID _writeUUID;
     private UUID _notifUUID;
+
     private byte[] _writeBytes;
-    public String TAG = "BLECONNTENT";
-    private PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
     private RxBleDevice _bleDevice;
+    private PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
     private Observable<RxBleConnection> connectionObservable;
 
     // 更新されたデータを読み取り
     abstract public void Notification(byte[] readData);
-
+    // コンストラクタ
     public BleContent(Context context, String mac_address, UUID WriteUUID, UUID NotifiUUID) {
         _mac_address = mac_address;
         _context = context;
@@ -40,7 +43,12 @@ abstract public class BleContent {
         _notifUUID = NotifiUUID;
         _bleDevice = GapNotificationApplication.getRxBleClient(_context).getBleDevice(_mac_address);
         connectionObservable = prepareConnectionObservable();
-        Log.d(TAG, "できてる");
+        // byteデータの初期化
+        byte[] tmp = new byte[1];
+        tmp[0] = 0;
+        _writeBytes = tmp;
+
+        Log.d(TAG, "create BleContent");
     }
     // Observableの作成
     private Observable<RxBleConnection> prepareConnectionObservable() {
@@ -48,15 +56,15 @@ abstract public class BleContent {
                 .establishConnection(_context, false)
                 .takeUntil(disconnectTriggerSubject);
     }
-    // 書込みデータ
+    // 書込みデータをセット
     public void Write(byte[] WriteData){
         _writeBytes = WriteData;
+        Connect();
     }
-
     // 接続
     public void Connect(){
         connectionObservable
-                .flatMap(rxBleConnection -> rxBleConnection.writeCharacteristic(_writeUUID, HexString.hexToBytes("00"))
+                .flatMap(rxBleConnection -> rxBleConnection.writeCharacteristic(_writeUUID, this._writeBytes)
                         .flatMap(bytes ->rxBleConnection.setupNotification(_notifUUID))
                         .doOnNext(notificationObservable -> {
                             Log.d(TAG, "Notification has been set up");
@@ -84,5 +92,4 @@ abstract public class BleContent {
     public boolean Connected(){
         return _bleDevice.getConnectionState() == RxBleConnection.RxBleConnectionState.CONNECTED;
     }
-
 }
