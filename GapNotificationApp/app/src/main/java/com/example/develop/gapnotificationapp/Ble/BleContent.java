@@ -1,5 +1,6 @@
 package com.example.develop.gapnotificationapp.Ble;
 
+import android.app.Notification;
 import android.content.Context;
 import android.util.Log;
 
@@ -18,7 +19,7 @@ import rx.subjects.PublishSubject;
  * Created by ragro on 2017/03/30.
  */
 
-abstract public class BleContent {
+public class BleContent {
 
     public String TAG = "BLECONNTENT";
 
@@ -33,8 +34,8 @@ abstract public class BleContent {
     private PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
     private Observable<RxBleConnection> connectionObservable;
 
-    // 更新されたデータを読み取り
-    abstract public void Notification(byte[] readData);
+    private NotificationListener _listener;
+
     // コンストラクタ
     public BleContent(Context context, String mac_address, UUID WriteUUID, UUID NotifiUUID) {
         _mac_address = mac_address;
@@ -47,6 +48,7 @@ abstract public class BleContent {
         byte[] tmp = new byte[1];
         tmp[0] = 0;
         _writeBytes = tmp;
+        _listener = null;
 
         Log.d(TAG, "create BleContent");
     }
@@ -75,9 +77,10 @@ abstract public class BleContent {
                 )
                 .subscribe(
                         bytes -> {
-                            Log.d(TAG, Integer.toString(bytes.length));
-                            Notification(bytes);
-                            // Written data.
+                            Log.d(TAG, "get notification data");
+                            if (_listener != null) {
+                                _listener.getNotification(bytes);
+                            }
                         },
                         throwable -> {
                             // Handle an error here.
@@ -91,5 +94,10 @@ abstract public class BleContent {
     // 接続中
     public boolean Connected(){
         return _bleDevice.getConnectionState() == RxBleConnection.RxBleConnectionState.CONNECTED;
+    }
+
+    // 通知時のリスナーをセットする
+    public void setNotificationListener(NotificationListener listener) {
+        _listener = listener;
     }
 }
