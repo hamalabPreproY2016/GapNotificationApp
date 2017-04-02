@@ -1,17 +1,23 @@
 package com.example.develop.gapnotificationapp;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.app.Fragment;
+import android.widget.Button;
+import android.widget.ListView;
 
-import com.example.develop.gapnotificationapp.dummy.DummyContent;
+import com.example.develop.gapnotificationapp.Ble.BleScanResultsAdapter;
 import com.example.develop.gapnotificationapp.dummy.DummyContent.DummyItem;
+import com.polidea.rxandroidble.RxBleClient;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import rx.Subscription;
 
 /**
  * A fragment representing a list of Items.
@@ -20,6 +26,13 @@ import com.example.develop.gapnotificationapp.dummy.DummyContent.DummyItem;
  * interface.
  */
 public class BLEFragment extends Fragment {
+    @BindView(R.id.ble_scan_toggle)
+    public Button _scanToggle;
+    @BindView(R.id.ble_scan_results)
+    public ListView _scanResults;
+    public BleScanResultsAdapter _adapter;
+
+    public RxBleClient _rxBleClient;
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -57,6 +70,11 @@ public class BLEFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.ble_scan_results, container, false);
+        // バターナイフとの連携
+        ButterKnife.bind(this, view);
+        _adapter = new BleScanResultsAdapter(getContext());
+        _scanResults.setAdapter(_adapter);
+        _rxBleClient = GapNotificationApplication.getRxBleClient(getContext());
         return view;
     }
 
@@ -77,6 +95,43 @@ public class BLEFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+    @OnClick(R.id.ble_scan_toggle)
+    public void ScanToggle() {
+        if (isScanning()) {
+            this.clearSubscription();
+        } else {
+            scanSubscription = _rxBleClient.scanBleDevices()
+                    .subscribe(
+                            rxBleScanResult -> {
+                                _adapter.addScanResult(rxBleScanResult);
+                            },
+                            throwable -> {
+                                // Handle an error here.
+                            }
+                    );
+
+        }
+
+        updateButtonUIState();
+    }
+    Subscription scanSubscription;
+    //     スキャンが解除されたとき？
+    private void clearSubscription () {
+        scanSubscription.unsubscribe();
+        scanSubscription = null;
+        _adapter.clearScanResults();
+        updateButtonUIState();
+    }
+
+    private boolean isScanning() {
+        return scanSubscription != null;
+    }
+    // ボタンの表示を更新
+
+    private void updateButtonUIState() {
+        _scanToggle.setText(isScanning() ? R.string.ble_stop : R.string.ble_scan);
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
