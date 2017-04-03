@@ -156,22 +156,22 @@ public class BLEFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();  //（1）
-        int listPosition = info.position;  //（2）
+        int listPosition = info.position;
         Log.d("BLECONNTENT", Integer.toBinaryString(listPosition));
         BleScanResultsAdapter.BleViewItem ble = (BleScanResultsAdapter.BleViewItem)_adapter.getItem(listPosition);
         int itemId = item.getItemId();
-        switch(itemId) {  //（4）
-            case R.id.bleContentContextHeartRate:  //（5）
-                GapNotificationApplication.Deregistration(getActivity(),  ble.device);
-                GapNotificationApplication.setHeartRate(getActivity(), ble.device);
+        switch(itemId) {
+            case R.id.bleContentContextHeartRate:
+                GapNotificationApplication.getBleContentManager(getActivity()).Deregistration(ble.device);
+                GapNotificationApplication.getBleContentManager(getActivity()).setHeartRate(ble.device);
                 ble.setType("心拍");
 
                 Toast.makeText(getActivity(), "このデバイスを心拍に登録しました", Toast.LENGTH_LONG).show();
                 break;
-            case R.id.bleContentContextEMG:  //（6）
+            case R.id.bleContentContextEMG:
                 // ここに注文処理を記述。
-                GapNotificationApplication.Deregistration(getActivity(),  ble.device);
-                GapNotificationApplication.setEMG(getActivity(), ble.device);
+                GapNotificationApplication.getBleContentManager(getActivity()).Deregistration(ble.device);
+                GapNotificationApplication.getBleContentManager(getActivity()).setEMG(ble.device);
                 ble.setType("筋電位");
                 Toast.makeText(getActivity(), "このデバイスを筋電位に登録しました", Toast.LENGTH_LONG).show();
                 break;

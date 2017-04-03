@@ -122,14 +122,14 @@ public class BleScanResultsAdapter extends BaseAdapter {
     }
 
     private void setBleType(BleViewItem item){
-        switch (GapNotificationApplication.isRegistered(_context, item.device)){
-            case 0:
+        switch (GapNotificationApplication.getBleContentManager(_context).isRegistered(item.device)){
+            case (BleContentManager.HEART_RATE):
                 item.holder.type.setText( "心拍");
                 break;
-            case 1:
+            case BleContentManager.EMG:
                 item.holder.type.setText("筋電位");
                 break;
-            case -1:
+            case BleContentManager.UNREGISTERED:
                 item.holder.type.setText("未登録");
                 break;
         }
