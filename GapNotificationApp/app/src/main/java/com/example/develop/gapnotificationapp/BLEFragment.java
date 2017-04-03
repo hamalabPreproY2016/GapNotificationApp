@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.develop.gapnotificationapp.Ble.BleContent;
 import com.example.develop.gapnotificationapp.Ble.BleScanResultsAdapter;
 import com.example.develop.gapnotificationapp.dummy.DummyContent.DummyItem;
 import com.polidea.rxandroidble.RxBleClient;
@@ -157,18 +158,19 @@ public class BLEFragment extends Fragment {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();  //（1）
         int listPosition = info.position;  //（2）
         Log.d("BLECONNTENT", Integer.toBinaryString(listPosition));
-//        Map<String, String> menu = _menuList.get(listPosition);  //（3）
-//
-//        int itemId = item.getItemId();
-//        switch(itemId) {  //（4）
-//            case R.id.menuListContextDesc:  //（5）
-//                String desc = menu.get("desc");
-//                Toast.makeText(MenuListActivity.this, desc, Toast.LENGTH_LONG).show();
-//                break;
-//            case R.id.menuListContextOrder:  //（6）
-//                // ここに注文処理を記述。
-//                break;
-//        }
+        BleScanResultsAdapter.BleViewItem ble = (BleScanResultsAdapter.BleViewItem)_adapter.getItem(listPosition);
+        int itemId = item.getItemId();
+        switch(itemId) {  //（4）
+            case R.id.bleContentContextHeartRate:  //（5）
+                GapNotificationApplication.setHeartRate(getActivity(), ble.device);
+                Toast.makeText(getActivity(), "このデバイスを心拍に登録しました", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.bleContentContextEMG:  //（6）
+                // ここに注文処理を記述。
+                GapNotificationApplication.setEMG(getActivity(), ble.device);
+                Toast.makeText(getActivity(), "このデバイスを筋電位に登録しました", Toast.LENGTH_LONG).show();
+                break;
+        }
         return super.onContextItemSelected(item);
     }
 
