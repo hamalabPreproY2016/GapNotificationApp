@@ -47,6 +47,8 @@ public class BleScanResultsAdapter extends BaseAdapter {
         TextView RSSI;
         @BindView(R.id.ble_device_item_read)
         TextView readValue;
+        @BindView(R.id.ble_device_item_type)
+        TextView type;
         @BindView(R.id.ble_device_item_toggle)
         Button connectToggle;
         public ViewHolder(View itemView) {
@@ -95,7 +97,6 @@ public class BleScanResultsAdapter extends BaseAdapter {
                 _bleDevicesList.get(i).read = "";
                 _bleDevicesList.get(i).holder.RSSI.setText("RSSI : " + Integer.toString(bleScanResult.getRssi()));
                 _bleDevicesList.get(i).holder.readValue.setText(_bleDevicesList.get(i).read);
-                Log.d("test", "変わらぬ値text" +_bleDevicesList.get(i).holder.readValue.getText().toString()  );
                 return;
             }
         }
@@ -144,6 +145,9 @@ public class BleScanResultsAdapter extends BaseAdapter {
         public String read;
         public int rssi;
         public ViewHolder holder;
+        public void setType(String type) {
+            holder.type.setText(type);
+        }
         public BleViewItem(BleContent _device, int _rssi, String _read) {
             device = _device;
             read = _read;
