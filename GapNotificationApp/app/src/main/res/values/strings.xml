@@ -16,7 +16,7 @@
     <string name="uuid_write">feedaa02-c497-4476-a7ed-727de7648ab1</string>
     <string name="uuid_notify">feedaa03-c497-4476-a7ed-727de7648ab1</string>
 
-    <string name="ble_scan_context_menu_header">BLEデバイスのタイプを選択</string>
+    <string name="ble_scan_context_menu_header">BLEの登録と接続</string>
     <string name="heart_rate">心拍</string>
     <string name="emg">筋電位</string>
     <string name="cancel">Cancel</string>
