@@ -52,6 +52,13 @@ public class BleContent {
 
         Log.d(TAG, "create BleContent");
     }
+
+    public BleContent(Context context, String mac_address){
+        this(context,
+                mac_address,
+                UUID.fromString(context.getResources().getString(R.string.uuid_write)),
+                UUID.fromString(context.getResources().getString(R.string.uuid_notify)));
+    }
     // Observableの作成
     private Observable<RxBleConnection> prepareConnectionObservable() {
         return _bleDevice
@@ -94,6 +101,10 @@ public class BleContent {
     // 接続中
     public boolean Connected(){
         return _bleDevice.getConnectionState() == RxBleConnection.RxBleConnectionState.CONNECTED;
+    }
+
+    public RxBleDevice getDevice(){
+        return _bleDevice;
     }
 
     // 通知時のリスナーをセットする
