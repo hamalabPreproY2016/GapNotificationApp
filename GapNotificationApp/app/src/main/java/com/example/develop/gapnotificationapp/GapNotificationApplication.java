@@ -43,6 +43,32 @@ public class GapNotificationApplication extends Application {
         return application._EMG;
     }
 
+    // 渡されたBleが心拍として登録されていたら0,筋電位だったら1,未登録なら-1
+    public static int isRegistered(Context context, BleContent ble){
+        GapNotificationApplication application = (GapNotificationApplication) context.getApplicationContext();
+        if (application._HeartRate != null && application._HeartRate.getDevice().equals(ble.getDevice())){
+            return 0;
+        }
+        if (application._EMG != null && application._EMG.getDevice().equals(ble.getDevice())){
+            return 1;
+        }
+
+        return -1;
+    }
+    // 登録の解除
+    public static void Deregistration(Context context, BleContent ble){
+        GapNotificationApplication application = (GapNotificationApplication) context.getApplicationContext();
+
+        switch (isRegistered(context, ble)){
+            case 0:
+                application._HeartRate = null;
+                break;
+            case 1:
+                application._EMG = null;
+                break;
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

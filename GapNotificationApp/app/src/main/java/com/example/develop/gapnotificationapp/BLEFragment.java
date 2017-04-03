@@ -162,12 +162,15 @@ public class BLEFragment extends Fragment {
         int itemId = item.getItemId();
         switch(itemId) {  //（4）
             case R.id.bleContentContextHeartRate:  //（5）
+                GapNotificationApplication.Deregistration(getActivity(),  ble.device);
                 GapNotificationApplication.setHeartRate(getActivity(), ble.device);
                 ble.setType("心拍");
+
                 Toast.makeText(getActivity(), "このデバイスを心拍に登録しました", Toast.LENGTH_LONG).show();
                 break;
             case R.id.bleContentContextEMG:  //（6）
                 // ここに注文処理を記述。
+                GapNotificationApplication.Deregistration(getActivity(),  ble.device);
                 GapNotificationApplication.setEMG(getActivity(), ble.device);
                 ble.setType("筋電位");
                 Toast.makeText(getActivity(), "このデバイスを筋電位に登録しました", Toast.LENGTH_LONG).show();

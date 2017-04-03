@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.R;
 import com.example.develop.gapnotificationapp.util.BinaryInteger;
 import com.example.develop.gapnotificationapp.util.HexString;
@@ -97,6 +98,7 @@ public class BleScanResultsAdapter extends BaseAdapter {
                 _bleDevicesList.get(i).read = "";
                 _bleDevicesList.get(i).holder.RSSI.setText("RSSI : " + Integer.toString(bleScanResult.getRssi()));
                 _bleDevicesList.get(i).holder.readValue.setText(_bleDevicesList.get(i).read);
+                setBleType(_bleDevicesList.get(i));
                 return;
             }
         }
@@ -113,10 +115,24 @@ public class BleScanResultsAdapter extends BaseAdapter {
 //                    Log.d("test", item.holder.readValue.getText().toString());
 //                }
 //            });
-
+//        setBleType(item);
         _bleDevicesList.add(item);
         Collections.sort(_bleDevicesList, SORTING_COMPARATOR);
         notifyDataSetChanged();
+    }
+
+    private void setBleType(BleViewItem item){
+        switch (GapNotificationApplication.isRegistered(_context, item.device)){
+            case 0:
+                item.holder.type.setText( "心拍");
+                break;
+            case 1:
+                item.holder.type.setText("筋電位");
+                break;
+            case -1:
+                item.holder.type.setText("未登録");
+                break;
+        }
     }
 
     @Override
