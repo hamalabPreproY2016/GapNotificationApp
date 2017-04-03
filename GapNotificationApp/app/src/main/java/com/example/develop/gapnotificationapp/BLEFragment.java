@@ -164,7 +164,7 @@ public class BLEFragment extends Fragment {
             case R.id.bleContentContextHeartRate:
                 GapNotificationApplication.getBleContentManager(getActivity()).Deregistration(ble.device);
                 GapNotificationApplication.getBleContentManager(getActivity()).setHeartRate(ble.device);
-                ble.setType("心拍");
+                ble.setType(getActivity().getResources().getString(R.string.heart_rate));
 
                 Toast.makeText(getActivity(), "このデバイスを心拍に登録しました", Toast.LENGTH_LONG).show();
                 break;
@@ -172,8 +172,13 @@ public class BLEFragment extends Fragment {
                 // ここに注文処理を記述。
                 GapNotificationApplication.getBleContentManager(getActivity()).Deregistration(ble.device);
                 GapNotificationApplication.getBleContentManager(getActivity()).setEMG(ble.device);
-                ble.setType("筋電位");
+                ble.setType(getActivity().getResources().getString(R.string.emg));
                 Toast.makeText(getActivity(), "このデバイスを筋電位に登録しました", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.bleContentDeregistration:
+                GapNotificationApplication.getBleContentManager(getActivity()).Deregistration(ble.device);
+                ble.setType(getActivity().getResources().getString(R.string.unregistered));
+                Toast.makeText(getActivity(), "このデバイスの登録を解除しました", Toast.LENGTH_LONG).show();
                 break;
         }
         return super.onContextItemSelected(item);

@@ -8,6 +8,6 @@
         android:id="@+id/bleContentContextEMG"
         android:title="@string/emg"/>
     <item
-        android:id="@+id/bleContentCancel"
-        android:title="@string/cancel"/>
+        android:id="@+id/bleContentDeregistration"
+        android:title="@string/deregistration"/>
 </menu>
