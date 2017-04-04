@@ -105,16 +105,15 @@ public class BleScanResultsAdapter extends BaseAdapter {
 
         BleContent tmp = new BleContent(_context, bleScanResult.getBleDevice().getMacAddress());
         BleViewItem item = new BleViewItem(tmp, bleScanResult.getRssi(), "");
-//        tmp.setNotificationListener(new NotificationListener() {
-//                @Override
-//                public void getNotification(byte[] bytes) {
-//                    int num = BinaryInteger.TwoByteToInteger(bytes);
-////                    Log.d("BLECONNTENT", "kore" + Integer.toString(num));
-//                    item.read = Integer.toString(num);
-////                    item.holder.readValue.setText("Read : " +  item.read);
-//                    Log.d("test", item.holder.readValue.getText().toString());
-//                }
-//            });
+        tmp.setNotificationListener(new NotificationListener() {
+                @Override
+                public void getNotification(byte[] bytes) {
+                    Log.d("BLECONNTENT", "kore" + "きてる　");
+
+                    int num = BinaryInteger.TwoByteToInteger(bytes);
+                    Log.d("BLECONNTENT", "kore" + Integer.toString(num));
+                }
+            });
 //        setBleType(item);
         _bleDevicesList.add(item);
         Collections.sort(_bleDevicesList, SORTING_COMPARATOR);

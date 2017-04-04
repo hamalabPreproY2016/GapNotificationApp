@@ -72,6 +72,7 @@ public class BleContent {
     }
     // 接続
     public void Connect(){
+        Log.d(TAG, "きてる");
         connectionObservable
                 .flatMap(rxBleConnection -> rxBleConnection.writeCharacteristic(_writeUUID, this._writeBytes)
                         .flatMap(bytes ->rxBleConnection.setupNotification(_notifUUID))
