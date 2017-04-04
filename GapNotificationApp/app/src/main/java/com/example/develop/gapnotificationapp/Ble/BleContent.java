@@ -1,12 +1,9 @@
 package com.example.develop.gapnotificationapp.Ble;
 
-import android.app.Notification;
 import android.content.Context;
 import android.util.Log;
 
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
-import com.example.develop.gapnotificationapp.R;
-import com.example.develop.gapnotificationapp.util.HexString;
 import com.polidea.rxandroidble.RxBleConnection;
 import com.polidea.rxandroidble.RxBleDevice;
 
@@ -54,10 +51,14 @@ public class BleContent {
     }
 
     public BleContent(Context context, String mac_address){
+//        this(context,
+//                mac_address,
+//                UUID.fromString(context.getResources().getString(R.string.uuid_write)),
+//                UUID.fromString(context.getResources().getString(R.string.uuid_notify)));
         this(context,
                 mac_address,
-                UUID.fromString(context.getResources().getString(R.string.uuid_write)),
-                UUID.fromString(context.getResources().getString(R.string.uuid_notify)));
+                UUID.fromString("569a2001-b87F-490c-92cb-11ba5ea5167c"),
+                UUID.fromString("569a2000-b87F-490c-92cb-11ba5ea5167c"));
     }
     // Observableの作成
     private Observable<RxBleConnection> prepareConnectionObservable() {

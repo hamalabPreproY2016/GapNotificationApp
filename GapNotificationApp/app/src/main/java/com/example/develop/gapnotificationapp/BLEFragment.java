@@ -1,6 +1,6 @@
 package com.example.develop.gapnotificationapp;
 
-import android.app.Application;
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,18 +10,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.app.Fragment;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.develop.gapnotificationapp.Ble.BleContent;
 import com.example.develop.gapnotificationapp.Ble.BleScanResultsAdapter;
 import com.example.develop.gapnotificationapp.dummy.DummyContent.DummyItem;
 import com.polidea.rxandroidble.RxBleClient;
-
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -114,9 +110,11 @@ public class BLEFragment extends Fragment {
                     .subscribe(
                             rxBleScanResult -> {
                                 _adapter.addScanResult(rxBleScanResult);
+//                                Log.d("D", "scan success");
                             },
                             throwable -> {
                                 // Handle an error here.
+                                Log.d("D", "scan failed");
                             }
                     );
 
