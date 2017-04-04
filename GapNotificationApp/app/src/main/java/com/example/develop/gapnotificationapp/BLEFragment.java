@@ -1,6 +1,7 @@
 package com.example.develop.gapnotificationapp;
 
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -139,6 +140,19 @@ public class BLEFragment extends Fragment {
     private void updateButtonUIState() {
         _scanToggle.setText(isScanning() ? R.string.ble_stop : R.string.ble_scan);
     }
+
+    @OnClick(R.id.button_start_observe)
+    public void pushObservationButton() {
+        segueGraphFragment();
+    }
+
+    private void segueGraphFragment() {
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+
+        GraphFragment newFragment = new GraphFragment();
+        fragmentTransaction.replace(R.id.container, newFragment).commit();
+    }
+
     // コンテキストメニューの作成
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,

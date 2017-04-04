@@ -1,9 +1,5 @@
 package com.example.develop.gapnotificationapp.Ble;
 
-import android.content.Context;
-
-import com.example.develop.gapnotificationapp.GapNotificationApplication;
-
 /**
  * Created by ragro on 2017/04/03.
  */
@@ -19,14 +15,14 @@ public class BleContentManager {
     public void setHeartRate(BleContent ble){
         _HeartRate = ble;
     }
-    public BleContent getHeartRate(BleContent ble){
+    public BleContent getHeartRate(){
         return _HeartRate;
     }
     // 筋電位
     public void setEMG(BleContent ble){
         _EMG = ble;
     }
-    public BleContent getEMG(BleContent ble){
+    public BleContent getEMG(){
         return _EMG;
     }
 

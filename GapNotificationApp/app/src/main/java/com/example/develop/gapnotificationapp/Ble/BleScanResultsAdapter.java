@@ -1,6 +1,5 @@
 package com.example.develop.gapnotificationapp.Ble;
 
-import android.app.Notification;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,17 +12,13 @@ import android.widget.TextView;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.R;
 import com.example.develop.gapnotificationapp.util.BinaryInteger;
-import com.example.develop.gapnotificationapp.util.HexString;
 import com.polidea.rxandroidble.RxBleDevice;
 import com.polidea.rxandroidble.RxBleScanResult;
-
-import java.nio.ByteBuffer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -189,7 +184,5 @@ public class BleScanResultsAdapter extends BaseAdapter {
             }
         }
     }
-
-
 }
 
