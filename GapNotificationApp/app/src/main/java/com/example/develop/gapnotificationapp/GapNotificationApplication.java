@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.example.develop.gapnotificationapp.Ble.BleContent;
 import com.example.develop.gapnotificationapp.Ble.BleContentManager;
+import com.example.develop.gapnotificationapp.rest.RestManager;
 import com.polidea.rxandroidble.RxBleClient;
 import com.polidea.rxandroidble.internal.RxBleLog;
 
@@ -15,6 +16,7 @@ import com.polidea.rxandroidble.internal.RxBleLog;
 public class GapNotificationApplication extends Application {
     private RxBleClient rxBleClient;
     private BleContentManager bleManager;
+    private RestManager restManager;
     /**
      * In practise you will use some kind of dependency injection pattern.
      */
@@ -31,6 +33,12 @@ public class GapNotificationApplication extends Application {
         return application.bleManager;
     }
 
+    // RestManagerを取得
+    public static RestManager getRestManager(Context context){
+        GapNotificationApplication application = (GapNotificationApplication) context.getApplicationContext();
+        return application.restManager;
+    }
+
 
     @Override
     public void onCreate() {
@@ -38,5 +46,6 @@ public class GapNotificationApplication extends Application {
         rxBleClient = RxBleClient.create(this);
         bleManager = new BleContentManager();
         RxBleClient.setLogLevel(RxBleLog.DEBUG);
+        restManager = new RestManager();
     }
 }
