@@ -11,6 +11,10 @@
             android:id="@+id/nav_ble"
             android:icon="@drawable/ic_menu_gallery"
             android:title="BLE" />
+        <item
+            android:id="@+id/nav_log_list"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="LOG" />
     </group>
 
 </menu>
