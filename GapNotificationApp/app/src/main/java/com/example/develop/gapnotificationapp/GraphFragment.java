@@ -4,9 +4,12 @@ package com.example.develop.gapnotificationapp;
 import android.app.Fragment;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.develop.gapnotificationapp.Ble.BleContent;
 import com.example.develop.gapnotificationapp.Ble.NotificationListener;
@@ -23,6 +26,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,6 +37,12 @@ public class GraphFragment extends Fragment {
 
     @BindView(R.id.rriGraph)
     public LineChart rriGraph;
+
+    @BindView(R.id.graph_fragment_container)
+    public LinearLayout layout;
+
+    @BindView(R.id.rriCount)
+    public TextView rriCountTextView;
 
     public GraphFragment() {
         // Required empty public constructor
@@ -46,10 +56,18 @@ public class GraphFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_graph, container, false);
 
         ButterKnife.bind(this, view);
-
+        Log.d("graphFragment", "onCreateView");
         setRRIGraph();
 
         return view;
+    }
+
+    @OnClick(R.id.button_vibration)
+    public void pushSendButton() {
+        BleContent heartRateContent = GapNotificationApplication.getBleContentManager(getActivity()).getHeartRate();
+        byte[] bytes = new byte[1];
+        bytes[0] = 1;
+        heartRateContent.Write(bytes);
     }
 
     private void setRRIGraph() {
@@ -70,7 +88,21 @@ public class GraphFragment extends Fragment {
 
         XAxis xAxis = rriGraph.getXAxis();
 
-        biometricManager = new BiometricManager();
+        layout.setBackgroundColor(Color.WHITE);
+
+        biometricManager = new BiometricManager(getActivity(), new UpdateLFHFListener() {
+            @Override
+            public void updateLFHF(boolean isAngry) {
+                Log.d("LFHFResult", Boolean.toString(isAngry));
+                if (isAngry) {
+                    layout.setBackgroundColor(Color.GRAY);
+                } else {
+                    layout.setBackgroundColor(Color.WHITE);
+                }
+            }
+        });
+
+        Log.d("graphFragment", "setrrigraph");
 
         BleContent heartRateContent = GapNotificationApplication.getBleContentManager(getActivity()).getHeartRate();
         heartRateContent.setNotificationListener(new NotificationListener() {
@@ -79,6 +111,7 @@ public class GraphFragment extends Fragment {
                 int num = BinaryInteger.TwoByteToInteger(bytes);
 
                 biometricManager.addRRI(num);
+//                        rriCountTextView.setText("rri:" + Integer.toString(num) + " count:" + Integer.toString(biometricManager.getRRIArray().size()));
 
                 ILineDataSet set = data.getDataSetByIndex(0);
                 if (set == null) {

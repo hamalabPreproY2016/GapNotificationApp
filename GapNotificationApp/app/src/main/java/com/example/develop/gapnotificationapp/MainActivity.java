@@ -129,15 +129,10 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_ble) {
             BLEFragment newFragment = new BLEFragment();
             fragmentTransaction.replace(R.id.container, newFragment).commit();
-        } //else if (id == R.id.nav_slideshow) {
-//
-//        } else if (id == R.id.nav_manage) {
-//
-//        } else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
+        } else if (id == R.id.nav_log_list) {
+            LogListFragment newFragment = new LogListFragment();
+            fragmentTransaction.replace(R.id.container, newFragment).commit();
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

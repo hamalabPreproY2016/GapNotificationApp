@@ -22,4 +22,9 @@
     <string name="deregistration">登録解除</string>
     <string name="unregistered">未登録</string>
 
+    <string name="directory_time">時間</string>
+    <string name="directory_upload">アップロード</string>
+    <string name="directory_delete">削除</string>
+    <string name="directory_name">実験日時 %1$s</string>
+
 </resources>
