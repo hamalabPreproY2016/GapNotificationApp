@@ -84,11 +84,8 @@ public class LogDirectoryListAdapter extends BaseAdapter {
             holder.date = (TextView)view.findViewById(R.id.log_list_item_date);
             holder.time = (TextView)view.findViewById(R.id.log_list_item_time);
             holder.upload = (ImageButton) view.findViewById(R.id.directory_upload);
-            holder.upload.setTag(list.get(i).getName());
             holder.delete = (ImageButton) view.findViewById(R.id.directory_delete);
-            holder.delete.setTag(list.get(i).getName());
             holder.view = (ImageButton)view.findViewById(R.id.directory_view);
-            holder.view.setTag(list.get(i).getName());
 
             holder.view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -103,7 +100,7 @@ public class LogDirectoryListAdapter extends BaseAdapter {
                     AlertDialog.Builder builder = new AlertDialog.Builder(_context);
                     builder.setTitle("確認")
                             .setMessage("この実験記録をGoogleDriveにアップロードしますか")
-                            .setPositiveButton("OK", new UploadDialogClickListener((String) view.getTag()))
+                            .setPositiveButton("OK", new UploadDialogClickListener(view))
                             .setNegativeButton("Cancel", null)
                             .show();
 
@@ -117,10 +114,17 @@ public class LogDirectoryListAdapter extends BaseAdapter {
                     AlertDialog.Builder builder = new AlertDialog.Builder(_context);
                     builder.setTitle("確認")
                             .setMessage("この実験記録を削除しますか")
-                            .setPositiveButton("OK", new DeleteDialogClickListener((String) view.getTag()))
+                            .setPositiveButton("OK", new DeleteDialogClickListener(view))
                             .setNegativeButton("Cancel", null)
                             .show();
                     AlertDialog dialog = builder.create();
+                }
+            });
+
+            holder.view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d("LogDirectoryListAdapter", "View directory" + (String)view.getTag());
                 }
             });
 
@@ -130,6 +134,9 @@ public class LogDirectoryListAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) view.getTag();
         }
+        holder.upload.setTag(list.get(i).getName());
+        holder.delete.setTag(list.get(i).getName());
+        holder.view.setTag(list.get(i).getName());
         holder.date.setText(_context.getString(R.string.directory_name, list.get(i).getName()));
 
 
@@ -137,24 +144,24 @@ public class LogDirectoryListAdapter extends BaseAdapter {
     }
 
     public class DeleteDialogClickListener implements DialogInterface.OnClickListener{
-        private String _directory_name;
-        public DeleteDialogClickListener(String directory_name){
-            _directory_name = directory_name;
+        private View view;
+        public DeleteDialogClickListener(View _view){
+            view = _view;
         }
         @Override
         public void onClick(DialogInterface dialogInterface, int i) {
-            _mager.deleteLogDirectory(_directory_name);
+            _mager.deleteLogDirectory((String)view.getTag());
             reload();
         }
     }
     public class UploadDialogClickListener implements DialogInterface.OnClickListener{
-        private String _directory_name;
-        public UploadDialogClickListener(String directory_name){
-            _directory_name = directory_name;
+        private View view;
+        public UploadDialogClickListener(View _view){
+            view = _view;
         }
         @Override
         public void onClick(DialogInterface dialogInterface, int i) {
-
+            Log.d("LogDirectoryListAdapter", "Upload directoyr" + (String)view.getTag());
         }
     }
 }
