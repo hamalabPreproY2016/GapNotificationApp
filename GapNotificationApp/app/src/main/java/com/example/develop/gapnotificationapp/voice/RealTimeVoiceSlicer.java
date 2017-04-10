@@ -6,6 +6,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import java.io.File;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -21,6 +22,9 @@ public class RealTimeVoiceSlicer {
     private Context _context;
     private int _interval_milli_second = 5000;
     private Timer timer ;
+    private  VoiceSliceListener _listener = null;
+    private String _current_file_name;
+
     // コンストラクタ
     public RealTimeVoiceSlicer(Context context){
         _context = context;
@@ -40,24 +44,36 @@ public class RealTimeVoiceSlicer {
         };
         timer.scheduleAtFixedRate(timerTask, 0, _interval_milli_second);
     }
-    // 停止
+    // 停止 (一度停止したらもう戻せないよ
     public void Stop(){
         timer.cancel();
     }
     // 次の録音を始める
     private void next(){
-        String file_name = _directory + "/" + String.format("%03d.wav", _counter) ;
-        // 前のレコードを停止
-        stopAudioRecord();
+        //  最初の録音時ではないとき
+        if (audioRecord != null ) {
+            // 前のレコードを停止
+            stopAudioRecord();
+            // リスナーが設定されていれば呼び出す
+            if (_listener != null) {
+                _listener.Recorded(new File(_current_file_name));
+            }
+        }
+        // 新しいレコードファイル名を取得
+        _current_file_name = new File(_directory ,String.format("%03d.wav", _counter)).toString();
         // 新しいレコードファイルを作成
-        initAudioRecord(file_name);
+        initAudioRecord(_current_file_name);
         // レコードを開始
         startAudioRecord();
-        Log.d("RecordProto", file_name);
+        Log.d("RecordProto", _current_file_name);
         _counter ++;
     }
+    // リスナーをセット
+    public void setVoiceSliceListener(VoiceSliceListener listener){
+        _listener = listener;
+    }
 
-    // 音声関係のfile
+    // 音声関係のプロパティ
     AudioRecord audioRecord; //録音用のオーディオレコードクラス
     private short[] shortData; //オーディオレコード用バッファ
     private WaveFile nowRecordingWavFile = new WaveFile();
@@ -106,8 +122,6 @@ public class RealTimeVoiceSlicer {
 
     //オーディオレコードを停止する
     private void stopAudioRecord(){
-        if (audioRecord != null ){
             audioRecord.stop();
-        }
     }
 }
