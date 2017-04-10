@@ -3,8 +3,8 @@ package com.example.develop.gapnotificationapp;
 import android.content.Context;
 
 import com.example.develop.gapnotificationapp.rest.RestManager;
-import com.example.develop.gapnotificationapp.rest.pojo.postHartPojo;
-import com.example.develop.gapnotificationapp.rest.pojo.resultHartPojo;
+import com.example.develop.gapnotificationapp.rest.pojo.postHeartPojo;
+import com.example.develop.gapnotificationapp.rest.pojo.resultHeartPojo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,17 +36,17 @@ public class BiometricManager {
         RRIArray.add(rri);
 
         if (RRIArray.size() >= 256) {
-            postHartPojo body = new postHartPojo();
+            postHeartPojo body = new postHeartPojo();
             body.array = RRIArray.subList(RRIArray.size() - 256, RRIArray.size());
-            restManager.postHartRate(body, new Callback<resultHartPojo>() {
+            restManager.postHartRate(body, new Callback<resultHeartPojo>() {
                 @Override
-                public void onResponse(Call<resultHartPojo> call, Response<resultHartPojo> response) {
+                public void onResponse(Call<resultHeartPojo> call, Response<resultHeartPojo> response) {
                     if (listener != null)
                         listener.updateLFHF(response.body().result);
                 }
 
                 @Override
-                public void onFailure(Call<resultHartPojo> call, Throwable t) {
+                public void onFailure(Call<resultHeartPojo> call, Throwable t) {
 
                 }
             });

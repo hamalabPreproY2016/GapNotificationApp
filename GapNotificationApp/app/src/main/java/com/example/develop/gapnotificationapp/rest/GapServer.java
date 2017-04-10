@@ -1,23 +1,32 @@
 package com.example.develop.gapnotificationapp.rest;
 
-import com.example.develop.gapnotificationapp.rest.pojo.postHartPojo;
-import com.example.develop.gapnotificationapp.rest.pojo.resultHartPojo;
+import com.example.develop.gapnotificationapp.rest.pojo.postHeartPojo;
+import com.example.develop.gapnotificationapp.rest.pojo.resultHeartPojo;
+import com.example.develop.gapnotificationapp.rest.pojo.resultVoicePojo;
 
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 
 /**
  * Created by ragro on 2017/04/06.
  */
 
 public interface GapServer {
-        @POST("/hart")
-        Call<resultHartPojo> postHart(@Body postHartPojo body);
-//        @POST("/voice")
-//        Call<resultHartPojo> postVoice(String type, @Body postHartPojo body);
+        // 心拍取得
+        @POST("/heart")
+        Call<resultHeartPojo> postHeart(@Body postHeartPojo body);
+
+        // 音声取得
+        @Multipart
+        @POST("/voice")
+        Call<resultVoicePojo> postVoice(@Part MultipartBody.Part file);
+
 //        @POST("/face")
-//        Call<resultHartPojo> postFace(String type, @Body postHartPojo body);
+//        Call<resultHeartPojo> postFace(String type, @Body postHeartPojo body);
 //        @POST("/emg")
-//        Call<resultHartPojo> postEMG(String type, @Body postHartPojo body);
+//        Call<resultHeartPojo> postEMG(String type, @Body postHeartPojo body);
 }

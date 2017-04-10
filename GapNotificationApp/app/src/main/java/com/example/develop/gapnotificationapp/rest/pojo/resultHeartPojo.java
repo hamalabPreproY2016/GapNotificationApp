@@ -5,7 +5,7 @@ package com.example.develop.gapnotificationapp.rest.pojo;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class resultHartPojo {
+public class resultHeartPojo {
 
     @SerializedName("result")
     @Expose
