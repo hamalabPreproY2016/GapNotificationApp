@@ -49,6 +49,7 @@ public class Camera {
     private CameraCaptureSession mPreviewSession;
     private CameraManager manager;
     private SaveImageListener mListener = null;
+    private File rootDirectory = null;
 
     private CameraDevice.StateCallback mCameraDeviceCallback = new CameraDevice.StateCallback() {
         @Override
@@ -153,6 +154,10 @@ public class Camera {
         }
     }
 
+    public void setRootDirectory(File root) {
+        rootDirectory = root;
+    }
+
     public void setListener(SaveImageListener listener) {
         mListener = listener;
     }
@@ -189,12 +194,16 @@ public class Camera {
 
             // ファイルの保存先のディレクトリとファイル名.
 //                String strSaveDir = Environment.getExternalStorageDirectory().toString();
-            String strSaveDir = "tmpImg";
+            String strSaveDir = "image";
             String strSaveFileName = "pic_" + System.currentTimeMillis() +".jpg";
 
-            File tmpDir = new File(mContext.getFilesDir(), strSaveDir);
-            if (!tmpDir.exists() || !tmpDir.isDirectory()) {
-                tmpDir.mkdir();
+            if (rootDirectory == null) {
+                return;
+            }
+
+            File imgDir = new File(rootDirectory, strSaveDir);
+            if (!imgDir.exists() || !imgDir.isDirectory()) {
+                imgDir.mkdir();
             }
 
             // 別スレッドで画像の保存処理を実行.
@@ -225,10 +234,10 @@ public class Camera {
                     OutputStream output = null;
                     try {
 //                        output = mContext.openFileOutput(strSaveDir + "/" + strSaveFileName, Context.MODE_PRIVATE);
-                        output = new FileOutputStream(tmpDir + "/" + strSaveFileName);
+                        output = new FileOutputStream(imgDir + "/" + strSaveFileName);
                         output.write(bytes);
                         if (mListener != null) {
-                            mListener.OnSaveImageComplete(new File(tmpDir, strSaveFileName));
+                            mListener.OnSaveImageComplete(new File(imgDir, strSaveFileName));
                         }
                     } finally {
                         if (null != output) {
