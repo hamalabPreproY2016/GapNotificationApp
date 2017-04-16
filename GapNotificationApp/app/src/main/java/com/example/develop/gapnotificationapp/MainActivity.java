@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.container, newFragment).commit();
 
         checkPermission();
-        
+
     }
     // パーミッションを確認
     public void checkPermission(){
