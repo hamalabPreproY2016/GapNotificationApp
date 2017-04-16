@@ -31,6 +31,8 @@ public class ExperimentManager {
     private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
     private SensorStruct _sensor = new SensorStruct();
 
+    private ExperimentManagerListener _listener = null;
+
     private List<SensorStruct.VoiceStruct> _voiceData = new ArrayList<SensorStruct.VoiceStruct>(); // 音声データ
     private List<SensorStruct.FaceStruct> _faceData = new ArrayList<SensorStruct.FaceStruct>(); // カメラデータ
     private List<SensorStruct.HeartRateStruct> _heartRateData = new ArrayList<SensorStruct.HeartRateStruct>(); // 心拍データ
@@ -51,7 +53,6 @@ public class ExperimentManager {
 
     public ExperimentManager(Context context){
         _context = context;
-
         _fileManager = new GapFileManager(_context);
     }
     public void startGetAverage(){
@@ -115,33 +116,51 @@ public class ExperimentManager {
 
     // 音声データを一時的に記憶
     private void setVoiceCache(File data){
+        long current_time = getRemmaningTime();
         // 音声データリストにデータを追加
-        _voiceData.add(_sensor.new VoiceStruct(data, getRemmaningTime()));
+        _voiceData.add(_sensor.new VoiceStruct(data, current_time));
         _flag[Device.VOICE.ordinal()] = true;
+        // リスナーを呼び出し
+        if (_listener != null) {
+            _listener.GetVoice(_sensor.new VoiceStruct(data, current_time));
+        }
         sendApiServer();
     }
 
     // 写真データを一時的に記憶
     private void setCameraCache(File data){
+        long current_time = getRemmaningTime();
         // 写真データリストにデータを追加
-        _faceData.add(_sensor.new FaceStruct(data, getRemmaningTime()));
+        _faceData.add(_sensor.new FaceStruct(data, current_time));
         _flag[Device.FACE.ordinal()] = true;
+        // リスナーを呼び出し
+        if (_listener != null) {
+            _listener.GetFace(_sensor.new FaceStruct(data, current_time));
+        }
         sendApiServer();
     }
 
     // 心拍データを一時的に記憶
     private void setHeartRateCache(Short data){
+        long current_time = getRemmaningTime();
         // 心拍データリストにデータを追加
-        _heartRateData.add(_sensor.new HeartRateStruct(data, getRemmaningTime()));
+        _heartRateData.add(_sensor.new HeartRateStruct(data, current_time));
         _flag[Device.HEARTRATE.ordinal()] = true;
+        if (_listener != null) {
+            _listener.GetHeartRate(_sensor.new HeartRateStruct(data, current_time));
+        }
         sendApiServer();
     }
 
     // 筋電データを一時的に記憶
     private void setEmgCache(Short data) {
+        long current_time = getRemmaningTime();
         // 筋電データリストにデータを追加
-        _emgData.add(_sensor.new EmgStruct(data, getRemmaningTime()));
+        _emgData.add(_sensor.new EmgStruct(data, current_time));
         _flag[Device.EMG.ordinal()] = true;
+        if (_listener != null) {
+            _listener.GetEmg(_sensor.new EmgStruct(data, current_time));
+        }
         sendApiServer();
     }
 
