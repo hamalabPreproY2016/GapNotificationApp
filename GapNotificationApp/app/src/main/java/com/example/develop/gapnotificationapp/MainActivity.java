@@ -65,7 +65,14 @@ public class MainActivity extends AppCompatActivity
 //        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 //            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 //        }
-    }
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            // 権限があればLocationManagerを取得
+            Toast.makeText(MainActivity.this, "カメラの使用は既に許可されています", Toast.LENGTH_SHORT).show();
+        } else {
+            // なければ権限を求めるダイアログを表示
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA},
+                    1);
+        }    }
     // パーミッションダイアログの結果受取
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -131,6 +138,9 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.replace(R.id.container, newFragment).commit();
         } else if (id == R.id.nav_log_list) {
             LogListFragment newFragment = new LogListFragment();
+            fragmentTransaction.replace(R.id.container, newFragment).commit();
+        } else if (id == R.id.nav_camera) {
+            CameraFragment newFragment = new CameraFragment();
             fragmentTransaction.replace(R.id.container, newFragment).commit();
         }
 
