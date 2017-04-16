@@ -17,7 +17,10 @@
     <!--ファイル読み書きのパーミッション-->
     <!--<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>-->
     <!--<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>-->
-
+    // Audioパーミッション
+    <uses-permission android:name="android.permission.RECORD_AUDIO"></uses-permission>
+    // ローカルファイルへの書き込みパーミッション
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 
     <application
         android:allowBackup="true"

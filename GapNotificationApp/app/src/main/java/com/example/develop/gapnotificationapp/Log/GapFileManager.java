@@ -3,6 +3,8 @@ package com.example.develop.gapnotificationapp.Log;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.develop.gapnotificationapp.GapNotificationApplication;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,9 +20,9 @@ public class GapFileManager {
     private SimpleDateFormat format;
     public GapFileManager(Context context){
         _context = context;
-        _root = _context.getFilesDir() +"/" +  _root;
-        _rootDirectory = new File(_root);
-        Log.d("GapFileManger",_root);
+        File applicationDirectory = context.getApplicationContext().getExternalFilesDir(null);
+        _rootDirectory = new File(applicationDirectory, _root);
+        Log.d("GapFileManger",_rootDirectory.toString());
         if(!_rootDirectory.exists() || !_rootDirectory.isDirectory()) {
             _rootDirectory.mkdir();
             Log.d("GapFileManger", "create new root directory");

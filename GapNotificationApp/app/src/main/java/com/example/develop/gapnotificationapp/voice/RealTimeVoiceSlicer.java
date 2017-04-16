@@ -50,6 +50,7 @@ public class RealTimeVoiceSlicer {
     }
     // 次の録音を始める
     private void next(){
+
         //  最初の録音時ではないとき
         if (audioRecord != null ) {
             // 前のレコードを停止
@@ -59,6 +60,7 @@ public class RealTimeVoiceSlicer {
                 _listener.Recorded(new File(_current_file_name));
             }
         }
+
         // 新しいレコードファイル名を取得
         _current_file_name = new File(_directory ,String.format("%03d.wav", _counter)).toString();
         // 新しいレコードファイルを作成
@@ -116,7 +118,9 @@ public class RealTimeVoiceSlicer {
 
     // オーディオレコードを開始する
     private void startAudioRecord(){
+        Log.d(TAG, "yahoo");
         audioRecord.startRecording();
+        Log.d(TAG, "yahoo");
         audioRecord.read(shortData, 0, bufSize/2);
     }
 

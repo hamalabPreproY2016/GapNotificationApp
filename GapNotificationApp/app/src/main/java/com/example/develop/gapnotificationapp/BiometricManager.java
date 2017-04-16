@@ -38,18 +38,18 @@ public class BiometricManager {
         if (RRIArray.size() >= 256) {
             postHeartPojo body = new postHeartPojo();
             body.array = RRIArray.subList(RRIArray.size() - 256, RRIArray.size());
-            restManager.postHartRate(body, new Callback<resultHeartPojo>() {
-                @Override
-                public void onResponse(Call<resultHeartPojo> call, Response<resultHeartPojo> response) {
-                    if (listener != null)
-                        listener.updateLFHF(response.body().result);
-                }
-
-                @Override
-                public void onFailure(Call<resultHeartPojo> call, Throwable t) {
-
-                }
-            });
+//            restManager.postHartRate(body, new Callback<resultHeartPojo>() {
+//                @Override
+//                public void onResponse(Call<resultHeartPojo> call, Response<resultHeartPojo> response) {
+//                    if (listener != null)
+//                        listener.updateLFHF(response.body().result);
+//                }
+//
+//                @Override
+//                public void onFailure(Call<resultHeartPojo> call, Throwable t) {
+//
+//                }
+//            });
         }
     }
 

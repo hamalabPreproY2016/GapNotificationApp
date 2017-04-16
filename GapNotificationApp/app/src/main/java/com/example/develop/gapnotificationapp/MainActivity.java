@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.FragmentTransaction;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,6 +16,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.example.develop.gapnotificationapp.voice.RealTimeVoiceSlicer;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -50,6 +55,7 @@ public class MainActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.container, newFragment).commit();
 
         checkPermission();
+        
     }
     // パーミッションを確認
     public void checkPermission(){
@@ -71,8 +77,23 @@ public class MainActivity extends AppCompatActivity
         } else {
             // なければ権限を求めるダイアログを表示
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA},
-                    1);
-        }    }
+                    2);
+        }
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            // 権限があればLocationManagerを取得
+            Toast.makeText(MainActivity.this, "マイクへのアクセスは既に許可されています", Toast.LENGTH_SHORT).show();
+        } else {
+            // なければ権限を求めるダイアログを表示
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 3);
+        }
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            // 権限があればLocationManagerを取得
+            Toast.makeText(MainActivity.this, "ローカルファイルへのアクセスは既に許可されています", Toast.LENGTH_SHORT).show();
+        } else {
+            // なければ権限を求めるダイアログを表示
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 4);
+        }
+    }
     // パーミッションダイアログの結果受取
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -141,6 +162,9 @@ public class MainActivity extends AppCompatActivity
             fragmentTransaction.replace(R.id.container, newFragment).commit();
         } else if (id == R.id.nav_camera) {
             CameraFragment newFragment = new CameraFragment();
+            fragmentTransaction.replace(R.id.container, newFragment).commit();
+        } else if (id == R.id.nav_experiment) {
+            ExperimentFragment newFragment = new ExperimentFragment();
             fragmentTransaction.replace(R.id.container, newFragment).commit();
         }
 
