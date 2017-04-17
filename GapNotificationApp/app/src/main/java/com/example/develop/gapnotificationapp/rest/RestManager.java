@@ -1,9 +1,11 @@
 package com.example.develop.gapnotificationapp.rest;
 
-import com.example.develop.gapnotificationapp.rest.pojo.postHeartPojo;
-import com.example.develop.gapnotificationapp.rest.pojo.resultHeartPojo;
-import com.example.develop.gapnotificationapp.rest.pojo.resultVoicePojo;
-import com.example.develop.gapnotificationapp.voice.SoundDefine;
+
+import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
+import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.ResponseAngry;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response.ResponseAverage;
+import com.google.gson.Gson;
 
 import java.io.File;
 
@@ -35,35 +37,40 @@ public class RestManager {
     public Retrofit getRetrofit(){
         return _retrofit;
     }
-    // serverに心拍をPOST
-    public void postHeartRate(postHeartPojo body, Callback<resultHeartPojo> listener){
-        Call<resultHeartPojo> call = _service.postHeart(body);
+    public void postEmgAverage(RequestAverage body, Callback<ResponseAverage> listener){
+        Call<ResponseAverage> call = _service.postEmgAverage(body);
         call.enqueue(listener);
     }
-
-    // serverに筋電をPOST
-//    public void postEMG(postEMGPojo body, Callback<resultEMGPojo> listener){
-//        Call<resultHeartPojo> call = _service.postHart(body);
-//        call.enqueue(listener);
-//    }
-
-    // serverに音声をPOST
-    public void postVoiceFile(String file_name, Callback<resultVoicePojo> listener){
-        File file = new File(file_name);
-        RequestBody requestFile =
+    // 取得したセンサーデータを送る
+    public void postAngry(RequestAngry json, String voice_path, String face_path, Callback<ResponseAngry> listener){
+        // 音声
+        File voice_file = new File(voice_path);
+        RequestBody voiceBody =
                 RequestBody.create(
-                        MediaType.parse("audio/wav; samplerate=" + Integer.toString(SoundDefine.SAMPLING_RATE)),
-                        file
+                        MediaType.parse("audio/wav; samplerate=44100"),
+                        voice_file
                 );
-        MultipartBody.Part body =
-                MultipartBody.Part.createFormData("upload", file.getName(), requestFile);
-        Call<resultVoicePojo> call = _service.postVoice(body);
+        MultipartBody.Part voice =
+                MultipartBody.Part.createFormData("voice", voice_file.getName(), voiceBody);
+        // 顔
+        File face_file = new File(face_path);
+        RequestBody faceBody =
+                RequestBody.create(
+                        MediaType.parse("image/jpg"),
+                        face_file
+                );
+        MultipartBody.Part face =
+                MultipartBody.Part.createFormData("face", face_file.getName(), faceBody);
+
+        // json
+        Gson gson = new Gson();
+        String jsonString = gson.toJson(json);
+        MultipartBody.Part jsonData =
+                MultipartBody.Part.createFormData("json", jsonString);
+        // リスナーをセット
+        Call<ResponseAngry> call = _service.postAngry(jsonData, voice, face);
         call.enqueue(listener);
     }
 
-    // serverに表情をPOST
-//    public void postFace(postFacePojo body, Callback<resultFacePojo> listener){
-//        Call<resultFacePojo> call = _service.postHart(body);
-//        call.enqueue(listener);
-//    }
+
 }

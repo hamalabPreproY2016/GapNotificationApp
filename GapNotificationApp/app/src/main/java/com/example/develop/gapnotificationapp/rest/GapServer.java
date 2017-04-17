@@ -1,8 +1,9 @@
 package com.example.develop.gapnotificationapp.rest;
 
-import com.example.develop.gapnotificationapp.rest.pojo.postHeartPojo;
-import com.example.develop.gapnotificationapp.rest.pojo.resultHeartPojo;
-import com.example.develop.gapnotificationapp.rest.pojo.resultVoicePojo;
+
+import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.ResponseAngry;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response.ResponseAverage;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -16,17 +17,12 @@ import retrofit2.http.Part;
  */
 
 public interface GapServer {
-        // 心拍取得
-        @POST("/heart")
-        Call<resultHeartPojo> postHeart(@Body postHeartPojo body);
+    
+    @POST("/emg-ave")
+    Call<ResponseAverage> postEmgAverage(@Body RequestAverage body);
 
-        // 音声取得
-        @Multipart
-        @POST("/voice")
-        Call<resultVoicePojo> postVoice(@Part MultipartBody.Part file);
+    @Multipart
+    @POST("/angry")
+    Call<ResponseAngry> postAngry(@Part MultipartBody.Part jsonData, @Part MultipartBody.Part voice, @Part MultipartBody.Part face);
 
-//        @POST("/face")
-//        Call<resultHeartPojo> postFace(String type, @Body postHeartPojo body);
-//        @POST("/emg")
-//        Call<resultHeartPojo> postEMG(String type, @Body postHeartPojo body);
 }
