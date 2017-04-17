@@ -4,7 +4,7 @@ package com.example.develop.gapnotificationapp.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Emg {
+public class Emg extends PojoObject{
 
     @SerializedName("time")
     @Expose

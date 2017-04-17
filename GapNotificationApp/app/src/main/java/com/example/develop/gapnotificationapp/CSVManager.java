@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by develop on 2017/04/17.
@@ -92,7 +93,12 @@ public class CSVManager {
         return retList;
     }
 
-    public interface ConvertFromStringsListener {
-        public Object convertToObjectFromStrings(String[] strings);
+    public interface WriteCSVDelegate {
+        public String[] writeLineStrings();
     }
+
+    public interface ReadCSVDelegate {
+        public Object convertToPojoObject(String[] strings);
+    }
+
 }

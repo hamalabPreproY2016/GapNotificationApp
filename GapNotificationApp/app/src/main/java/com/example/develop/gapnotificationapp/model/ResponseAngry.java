@@ -8,7 +8,7 @@ import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Voice;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ResponseAngry {
+public class ResponseAngry extends PojoObject {
 
     @SerializedName("heartrate")
     @Expose
