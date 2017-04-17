@@ -7,6 +7,6 @@ import java.io.File;
  */
 
 public class Voice {
-    public Long time;
+    public String time;
     public File file;
 }

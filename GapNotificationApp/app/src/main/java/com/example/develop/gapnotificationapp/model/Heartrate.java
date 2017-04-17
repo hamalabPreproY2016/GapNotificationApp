@@ -8,7 +8,7 @@ public class Heartrate {
 
     @SerializedName("time")
     @Expose
-    public Integer time;
+    public String time;
     @SerializedName("value")
     @Expose
     public Integer value;
