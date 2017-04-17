@@ -1,5 +1,5 @@
 
-package com.example.develop.gapnotificationapp.rest.Pojo;
+package com.example.develop.gapnotificationapp.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

@@ -2,7 +2,7 @@ package com.example.develop.gapnotificationapp.rest;
 
 
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
-import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.ResponseAngry;
+import com.example.develop.gapnotificationapp.model.ResponseAngry;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response.ResponseAverage;
 import com.google.gson.Gson;

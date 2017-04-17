@@ -1,6 +1,10 @@
 
-package com.example.develop.gapnotificationapp.rest.Pojo.Angry.response;
+package com.example.develop.gapnotificationapp.model;
 
+import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.*;
+import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Emg;
+import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Face;
+import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Voice;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -8,7 +12,7 @@ public class ResponseAngry {
 
     @SerializedName("heartrate")
     @Expose
-    public Heartrate heartrate;
+    public com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Heartrate heartrate;
     @SerializedName("emg")
     @Expose
     public Emg emg;

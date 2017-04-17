@@ -1,7 +1,7 @@
 
 package com.example.develop.gapnotificationapp.rest.Pojo.Angry.request;
 
-import com.example.develop.gapnotificationapp.rest.Pojo.Emg;
+import com.example.develop.gapnotificationapp.model.Emg;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
