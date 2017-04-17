@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.LongSummaryStatistics;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -40,7 +43,8 @@ public class ExperimentManager {
     private ExperimentManagerListener _listener = null;
 
     // 筋電平均取得時間関係
-    private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
+//    private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
+    private final long _average_time_milliseconds = 10 * 1000; // 10秒間の平均取得時間
     private boolean _isGetAverageEmgSession;
     private int _averageEmg;
 
@@ -66,6 +70,7 @@ public class ExperimentManager {
         _context = context;
         _fileManager = new GapFileManager(_context);
         _isGetAverageEmgSession = true;
+        _restManager = new RestManager();
     }
 
     // 実験開始
@@ -78,18 +83,18 @@ public class ExperimentManager {
         _rootDirectory = _fileManager.getNewLogDirectory();
         Log.d(TAG, _rootDirectory.toString());
 
-        // 音声保存をするスライサーを作成
-        _voiceSilcer = new RealTimeVoiceSlicer(_context);
-        // 音声リスナーをセット
-        _voiceSilcer.setVoiceSliceListener(new VoiceSliceListener() {
-            @Override
-            public void Recorded(File file) {
-                // 作成されたファイルをキャッシュに保存
-                setVoiceCache(file);
-            }
-        });
-        // 音声のスライスをスタート
-        _voiceSilcer.Start(_rootDirectory.toString());
+//        // 音声保存をするスライサーを作成
+//        _voiceSilcer = new RealTimeVoiceSlicer(_context);
+//        // 音声リスナーをセット
+//        _voiceSilcer.setVoiceSliceListener(new VoiceSliceListener() {
+//            @Override
+//            public void Recorded(File file) {
+//                // 作成されたファイルをキャッシュに保存
+//                setVoiceCache(file);
+//            }
+//        });
+//        // 音声のスライスをスタート
+//        _voiceSilcer.Start(_rootDirectory.toString());
 
 
         // カメラリスナーをセット
@@ -111,6 +116,9 @@ public class ExperimentManager {
 //                setEmgCache(data);
 //            }
 //        });
+
+        // 筋電のテストデータ作成を開始
+        CreateTestSensor();
     }
 
     // 実験終了
@@ -173,6 +181,7 @@ public class ExperimentManager {
         Emg emg = new Emg();
         emg.time = Long.toString(getRemmaningTime());
         emg.value = data.intValue();
+        Log.d(TAG, "data : " + emg.time + ", "+ Integer.toString(emg.value));
         // 筋電データリストにデータを追加
         _emgData.add(emg);
         _flag[Device.EMG.ordinal()] = true;
@@ -205,7 +214,6 @@ public class ExperimentManager {
             SessionAverageEMG();
             return ;
         }
-
         // 全てのデータがキャッシュされていない場合は送らない
         if (!isAllCompleted()) return;
 
@@ -237,6 +245,7 @@ public class ExperimentManager {
             // pojofileを作成
             RequestAverage request_average = new RequestAverage();
             request_average.emg = new ArrayList<>(_emgData);
+            Log.d(TAG, Integer.toString(request_average.emg.size()));
             // 筋電をAPIに送って平均値を取得する
             _restManager.postEmgAverage(request_average, new Callback<ResponseAverage>() {
                 @Override
@@ -253,5 +262,22 @@ public class ExperimentManager {
             });
         }
     }
+
+    Timer timer = null;
+    private void CreateTestSensor(){
+        timer = new Timer(true);
+        // 1秒ごとに筋電のテストデータを作成
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // 乱数を作成
+                Random r = new Random();
+                short value = (short)r.nextInt(300);
+                // 値を送信する
+                setEmgCache(value);
+            }
+        }, 0, 1000);
+    }
+
 
 }
