@@ -55,6 +55,7 @@ public class CameraFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         camera = new Camera(getContext(), textureView);
+        camera.setRootDirectory(getContext().getFilesDir());
         camera.setListener(new Camera.SaveImageListener() {
                                @Override
                                public void OnSaveImageComplete(File file) {

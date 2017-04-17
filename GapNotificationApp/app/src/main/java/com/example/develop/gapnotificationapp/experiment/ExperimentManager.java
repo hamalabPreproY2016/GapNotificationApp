@@ -5,6 +5,9 @@ import android.util.Log;
 
 import com.example.develop.gapnotificationapp.Log.GapFileManager;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
+import com.example.develop.gapnotificationapp.GapNotificationApplication;
+import com.example.develop.gapnotificationapp.Log.GapFileManager;
+import com.example.develop.gapnotificationapp.camera.Camera;
 import com.example.develop.gapnotificationapp.rest.RestManager;
 import com.example.develop.gapnotificationapp.voice.RealTimeVoiceSlicer;
 import com.example.develop.gapnotificationapp.voice.VoiceSliceListener;
@@ -82,6 +85,14 @@ public class ExperimentManager {
 
 
         // カメラリスナーをセット
+        GapNotificationApplication.getTakePictureRepeater(_context).startCapturePicture(_rootDirectory, new Camera.SaveImageListener() {
+            @Override
+            public void OnSaveImageComplete(File file) {
+                Log.d("saveFile", "save file completed");
+                setCameraCache(file);
+            }
+        });
+
 //
 //        // 心拍リスナーをセット
 //        GapNotificationApplication.getBleContentManager(_context).getHeartRate().setNotificationListener(new NotificationListener() {

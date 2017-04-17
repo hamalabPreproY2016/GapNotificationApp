@@ -3,8 +3,8 @@ package com.example.develop.gapnotificationapp;
 import android.app.Application;
 import android.content.Context;
 
-import com.example.develop.gapnotificationapp.Ble.BleContent;
 import com.example.develop.gapnotificationapp.Ble.BleContentManager;
+import com.example.develop.gapnotificationapp.camera.TakePictureRepeater;
 import com.example.develop.gapnotificationapp.rest.RestManager;
 import com.polidea.rxandroidble.RxBleClient;
 import com.polidea.rxandroidble.internal.RxBleLog;
@@ -17,6 +17,7 @@ public class GapNotificationApplication extends Application {
     private RxBleClient rxBleClient;
     private BleContentManager bleManager;
     private RestManager restManager;
+    private TakePictureRepeater repeater;
     /**
      * In practise you will use some kind of dependency injection pattern.
      */
@@ -39,6 +40,11 @@ public class GapNotificationApplication extends Application {
         return application.restManager;
     }
 
+    public static TakePictureRepeater getTakePictureRepeater(Context context) {
+        GapNotificationApplication application = (GapNotificationApplication) context.getApplicationContext();
+        return application.repeater;
+    }
+
 
     @Override
     public void onCreate() {
@@ -47,5 +53,6 @@ public class GapNotificationApplication extends Application {
         bleManager = new BleContentManager();
         RxBleClient.setLogLevel(RxBleLog.DEBUG);
         restManager = new RestManager();
+        repeater = new TakePictureRepeater();
     }
 }

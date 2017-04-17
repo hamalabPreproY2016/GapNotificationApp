@@ -234,10 +234,11 @@ public class Camera {
                     OutputStream output = null;
                     try {
 //                        output = mContext.openFileOutput(strSaveDir + "/" + strSaveFileName, Context.MODE_PRIVATE);
-                        output = new FileOutputStream(imgDir + "/" + strSaveFileName);
+                        File imgFile = new File(imgDir, strSaveFileName);
+                        output = new FileOutputStream(imgFile);
                         output.write(bytes);
                         if (mListener != null) {
-                            mListener.OnSaveImageComplete(new File(imgDir, strSaveFileName));
+                            mListener.OnSaveImageComplete(imgFile);
                         }
                     } finally {
                         if (null != output) {

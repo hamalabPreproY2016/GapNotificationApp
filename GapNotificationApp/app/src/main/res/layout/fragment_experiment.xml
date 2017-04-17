@@ -4,10 +4,28 @@
     android:layout_height="match_parent"
     tools:context="com.example.develop.gapnotificationapp.ExperimentFragment">
 
-    <Button
-        android:id="@+id/experiment_start_button"
+    <TextureView
+        android:id="@+id/camera_preview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="じっけん、すたーと！"/>
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <Button
+                android:id="@+id/experiment_start_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="じっけん、すたーと！" />
+
+
+        </LinearLayout>
+    </ScrollView>
 
 </FrameLayout>
