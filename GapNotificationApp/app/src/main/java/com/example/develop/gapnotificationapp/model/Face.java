@@ -7,6 +7,6 @@ import java.io.File;
  */
 
 public class Face {
-    public Long time;
+    public String time;
     public File file;
 }
