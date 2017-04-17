@@ -3,11 +3,9 @@ package com.example.develop.gapnotificationapp.experiment;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.develop.gapnotificationapp.Ble.NotificationListener;
-import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.Log.GapFileManager;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
 import com.example.develop.gapnotificationapp.rest.RestManager;
-import com.example.develop.gapnotificationapp.util.BinaryInteger;
 import com.example.develop.gapnotificationapp.voice.RealTimeVoiceSlicer;
 import com.example.develop.gapnotificationapp.voice.VoiceSliceListener;
 
@@ -28,10 +26,12 @@ public class ExperimentManager {
     private boolean[] _flag = new boolean[4]; // 各デバイスのデータが揃っているのかの管理
     private File _rootDirectory; // 実験ログを保存するルートディレクトリ
     private RestManager _restManager; // RestAPIを管理する
-    private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
     private SensorStruct _sensor = new SensorStruct();
-
     private ExperimentManagerListener _listener = null;
+
+    // 筋電平均取得時間関係
+    private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
+    private boolean _isGetAverageEmgSession;
 
     private List<SensorStruct.VoiceStruct> _voiceData = new ArrayList<SensorStruct.VoiceStruct>(); // 音声データ
     private List<SensorStruct.FaceStruct> _faceData = new ArrayList<SensorStruct.FaceStruct>(); // カメラデータ
@@ -54,9 +54,7 @@ public class ExperimentManager {
     public ExperimentManager(Context context){
         _context = context;
         _fileManager = new GapFileManager(_context);
-    }
-    public void startGetAverage(){
-
+        _isGetAverageEmgSession = true;
     }
 
     // 実験開始
@@ -182,6 +180,12 @@ public class ExperimentManager {
     // キャッシュデータをAPIserverに送る
     private void sendApiServer(){
 
+        // 平常値取得セッションの時はその処理を行う
+        if (_isGetAverageEmgSession){
+            SessionAverageEMG();
+            return ;
+        }
+
         // 全てのデータがキャッシュされていない場合は送らない
         if (!isAllCompleted()) return;
 
@@ -205,5 +209,16 @@ public class ExperimentManager {
     }
     // 実験開始からの経過時間を取得する
     private long getRemmaningTime(){return System.currentTimeMillis() - _startTime;}
+
+    // 筋電の平均を取得
+    private void SessionAverageEMG(){
+        // 現在の経過時間が平常値取得時間よりも長かった場合は
+        if (getRemmaningTime() > _average_time_milliseconds){
+            RequestAverage request_average = new RequestAverage();
+            request_average.emg = new ArrayList<>();
+
+//_restManager.postEmgAverage();
+        }
+    }
 
 }
