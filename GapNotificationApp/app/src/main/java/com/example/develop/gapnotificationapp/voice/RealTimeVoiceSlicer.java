@@ -31,7 +31,10 @@ public class RealTimeVoiceSlicer {
     }
     // スライサーの開始
     public void Start(String directory_name){
-        _directory = directory_name;
+        // 指定ディレクトリの中にvoiceディレクトリを作成
+        File root = new File(directory_name, "voice");
+        root.mkdir();
+        _directory = root.toString();
         _counter = 0;
 
         // 5秒間隔でスライスを開始する
