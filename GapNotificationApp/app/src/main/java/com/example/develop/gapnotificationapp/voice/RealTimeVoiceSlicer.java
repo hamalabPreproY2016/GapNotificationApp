@@ -45,8 +45,9 @@ public class RealTimeVoiceSlicer {
         timer.scheduleAtFixedRate(timerTask, 0, _interval_milli_second);
     }
     // 停止 (一度停止したらもう戻せないよ
-    public void Stop(){
+    public void Finish(){
         timer.cancel();
+        startAudioRecord();
     }
     // 次の録音を始める
     private void next(){
