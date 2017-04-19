@@ -1,5 +1,7 @@
 package com.example.develop.gapnotificationapp.model;
 
+import com.example.develop.gapnotificationapp.CSVManager;
+
 import java.io.File;
 
 /**
@@ -7,11 +9,17 @@ import java.io.File;
  */
 
 public class Voice extends PojoObject {
-    public Long time;
+    public String time;
     public File file;
 
+
     @Override
-    public String[] toCSVStrings() {
-        return new String[]{};
+    public String[] parseCSVLine(CSVManager manager) {
+        return new String[]{time, file.getName()};
+    }
+
+    @Override
+    public void setPropertyFromCSVLine(CSVManager manager, String[] strings) {
+
     }
 }
