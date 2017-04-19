@@ -139,6 +139,7 @@ public class ExperimentManager {
     public void Finish(){
         // 保存する
         // リスナーとか解除する
+        _voiceSilcer.Finish();
     }
 
     // セッションを追加
