@@ -3,8 +3,6 @@ package com.example.develop.gapnotificationapp;
 import android.content.Context;
 
 import com.example.develop.gapnotificationapp.rest.RestManager;
-import com.example.develop.gapnotificationapp.rest.pojo.postHeartPojo;
-import com.example.develop.gapnotificationapp.rest.pojo.resultHeartPojo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +31,11 @@ public class BiometricManager {
     }
 
     public void addRRI(int rri){
-        RRIArray.add(rri);
-
-        if (RRIArray.size() >= 256) {
-            postHeartPojo body = new postHeartPojo();
-            body.array = RRIArray.subList(RRIArray.size() - 256, RRIArray.size());
+//        RRIArray.add(rri);
+//
+//        if (RRIArray.size() >= 256) {
+//            postHeartPojo body = new postHeartPojo();
+//            body.array = RRIArray.subList(RRIArray.size() - 256, RRIArray.size());
 //            restManager.postHartRate(body, new Callback<resultHeartPojo>() {
 //                @Override
 //                public void onResponse(Call<resultHeartPojo> call, Response<resultHeartPojo> response) {
@@ -50,7 +48,7 @@ public class BiometricManager {
 //
 //                }
 //            });
-        }
+//        }
     }
 
     public List<Integer> getRRIArray() {
