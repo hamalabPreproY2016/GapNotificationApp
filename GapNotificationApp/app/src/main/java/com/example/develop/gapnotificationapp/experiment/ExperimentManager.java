@@ -9,7 +9,9 @@ import com.example.develop.gapnotificationapp.camera.Camera;
 import com.example.develop.gapnotificationapp.model.Emg;
 import com.example.develop.gapnotificationapp.model.Face;
 import com.example.develop.gapnotificationapp.model.Heartrate;
+import com.example.develop.gapnotificationapp.model.ResponseAngry;
 import com.example.develop.gapnotificationapp.model.Voice;
+import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response.ResponseAverage;
 import com.example.develop.gapnotificationapp.rest.RestManager;
@@ -51,8 +53,9 @@ public class ExperimentManager {
     private List<Face> _faceData = new ArrayList<>(); // カメラデータ
     private List<Heartrate> _heartRateData = new ArrayList<>(); // 心拍データ
     private List<Emg> _emgData = new ArrayList<>(); // 筋電データ
+    private int _nextSendBeginEMG; // 次に送る筋電データリストの先頭Index
 
-    private int[] _cacheStartIndexList = new int[4]; // 各センサーのキャッシュIndex
+    private List<ResponseAngry> _angryData = new ArrayList<>();
 
     // 時間関係
     private List<Long> _sessionTime = new ArrayList<Long>(); // セッションタイム
@@ -76,24 +79,24 @@ public class ExperimentManager {
     public void Start(){
         // 実験開始時間を保存
         _startTime = System.currentTimeMillis();
-        // キャッシュのIndexを0
-        Arrays.fill(_cacheStartIndexList, 0);
         // 実験ディレクトリを取得する
         _rootDirectory = _fileManager.getNewLogDirectory();
         Log.d(TAG, _rootDirectory.toString());
+        // 送信する筋電データリストの先頭インデクスを初期化
+        _nextSendBeginEMG = 0;
 
-//        // 音声保存をするスライサーを作成
-//        _voiceSilcer = new RealTimeVoiceSlicer(_context);
-//        // 音声リスナーをセット
-//        _voiceSilcer.setVoiceSliceListener(new VoiceSliceListener() {
-//            @Override
-//            public void Recorded(File file) {
-//                // 作成されたファイルをキャッシュに保存
-//                setVoiceCache(file);
-//            }
-//        });
-//        // 音声のスライスをスタート
-//        _voiceSilcer.Start(_rootDirectory.toString());
+        // 音声保存をするスライサーを作成
+        _voiceSilcer = new RealTimeVoiceSlicer(_context);
+        // 音声リスナーをセット
+        _voiceSilcer.setVoiceSliceListener(new VoiceSliceListener() {
+            @Override
+            public void Recorded(File file) {
+                // 作成されたファイルをキャッシュに保存
+                setVoiceCache(file);
+            }
+        });
+        // 音声のスライスをスタート
+        _voiceSilcer.Start(_rootDirectory.toString());
 
 
         // カメラリスナーをセット
@@ -136,6 +139,7 @@ public class ExperimentManager {
 
     // セッションを追加
     public void Session(){
+        _sessionTime.add(getRemmaningTime());
     }
 
     // 音声データを一時的に記憶
@@ -224,22 +228,47 @@ public class ExperimentManager {
         // 全てのデータがキャッシュされていない場合は送らない
         if (!isAllCompleted()) return;
 
-//        // 各センサーのキャッシュを取り出す
-//        List<SensorStruct.VoiceStruct> voice_cache =
-//                new ArrayList<>(_voiceData.subList(_cacheStartIndexList[Device.VOICE.ordinal()], _voiceData.size() )); // 音声データ
-//        List<SensorStruct.FaceStruct> face_cache =
-//                new ArrayList<>(_faceData.subList(_cacheStartIndexList[Device.FACE.ordinal()], _faceData.size() )); // 顔写真データ
-//        List<SensorStruct.EmgStruct> emg_cache =
-//                new ArrayList<>(_emgData.subList(_cacheStartIndexList[Device.EMG.ordinal()], _emgData.size() )); // 筋電データ
-//        List<SensorStruct.HeartRateStruct> heartrate_cache =
-//                new ArrayList<>(_heartRateData.subList(_cacheStartIndexList[Device.HEARTRATE.ordinal()] ,_heartRateData.size() )); // 心拍データ
 
-        // Requestデータを作る
+        /* 送信データ作成 */
+        RequestAngry sendJson = new RequestAngry();
+        sendJson.sendTime = Long.toString(getRemmaningTime()); // 送信時間
+        sendJson.emgAve = _averageEmg; // 筋電の平均
+
+        // 心拍の送信データの作成
+        // 過去256個のデータを取得
+        int dataBegin = _heartRateData.size() - 256 < 0 ? 0 : _heartRateData.size() - 256;
+        sendJson.heartrate  = new ArrayList<>(_heartRateData.subList(dataBegin, _heartRateData.size()));
+
+        // 筋電の送信データの作成
+        sendJson.emg= new ArrayList<>(_emgData.subList(_nextSendBeginEMG, _emgData.size()));
 
         // 全てのキャッシュを削除
         cacheClear();
 
         // ネットワークに送信する
+        _restManager.postAngry(sendJson,
+                _voiceData.get(_voiceData.size() - 1).file.toString(),
+                _faceData.get(_faceData.size() - 1).file.toString(),
+                new Callback<ResponseAngry>() {
+                    @Override
+                    public void onResponse(Call<ResponseAngry> call, Response<ResponseAngry> response) {
+                        // Statusコード200番の時にリスナーイベントを走らせる
+                        if (response.code() == 200) {
+                            _angryData.add(response.body());
+                            if(_listener != null) {
+                                _listener.GetAngry(response.body());
+                            }
+                        } else {
+                            Log.d(TAG, "access error : status code " + Integer.toString(response.code()));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseAngry> call, Throwable t) {
+
+                    }
+                });
+
 
     }
     // 実験開始からの経過時間を取得する
@@ -257,9 +286,17 @@ public class ExperimentManager {
             _restManager.postEmgAverage(request_average, new Callback<ResponseAverage>() {
                 @Override
                 public void onResponse(Call<ResponseAverage> call, Response<ResponseAverage> response) {
-                    Log.d(TAG, "average emg :" + Double.toString(response.body().average));
-                    _isGetAverageEmgSession = false;
-                    _averageEmg = response.body().average;
+                    if (response.code() == 200) {
+                        Log.d(TAG, "average emg :" + Double.toString(response.body().average));
+                        _isGetAverageEmgSession = false;
+                        _averageEmg = response.body().average;
+                        if(_listener != null) {
+                            _listener.GetEmgAverage(_averageEmg);
+                        }
+                    } else {
+                        Log.d(TAG, "access error : status code " + Integer.toString(response.code()));
+                    }
+
                 }
 
                 @Override
@@ -277,11 +314,16 @@ public class ExperimentManager {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                // 乱数を作成
+                // 筋電の値を乱数で作成
                 Random r = new Random();
                 short value = (short)r.nextInt(300);
-                // 値を送信する
                 setEmgCache(value);
+
+                // 心拍の値を乱数で作成
+                value = (short)r.nextInt(300);
+                setHeartRateCache(value);
+
+
             }
         }, 0, 1000);
     }
