@@ -43,17 +43,24 @@ public class GapFileManager {
         if (_rootDirectory.isDirectory())
         {
             String[] children = _rootDirectory.list();
-            for (int i = 0; i < children.length; i++)
-            {
-                new File(_rootDirectory, children[i]).delete();
+            for (String child : children) {
+                deleteLogDirectory(child);
             }
         }
     }
     // 指定の日付に対応するLogディレクトリを削除
     public  void deleteLogDirectory(String string){
-        File delete = new File(_rootDirectory,string);
-        delete.delete();
+        Log.d("GapFileManger", "delete : " + string);
+        deleteRecursive(new File(_rootDirectory,string));
         // もしかしたら、ファイルが中に入っていたら消せないかも
+    }
+    // 対象内にあるファイル全てを削除
+    private void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+
+        fileOrDirectory.delete();
     }
     // Logディレクトリの数を取得
     public int getLogDirectoryNum(){
