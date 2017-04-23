@@ -130,6 +130,7 @@ public class RealTimeVoiceSlicer {
 
     //オーディオレコードを停止する
     private void stopAudioRecord(){
+            nowRecordingWavFile.close();
             audioRecord.stop();
     }
 }
