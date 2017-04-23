@@ -4,28 +4,54 @@
     android:layout_height="match_parent"
     tools:context="com.example.develop.gapnotificationapp.ExperimentFragment">
 
-    <TextureView
-        android:id="@+id/camera_preview"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <LinearLayout
+            <TextureView
+                android:id="@+id/camera_preview"
+                android:layout_width="match_parent"
+                android:layout_height="1dp" />
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/experiment_start_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:text="じっけん、すたーと！" />
 
-            <Button
-                android:id="@+id/experiment_start_button"
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="じっけん、すたーと！" />
+                android:orientation="vertical">
 
 
-        </LinearLayout>
-    </ScrollView>
+                <view
+                    android:id="@+id/experiment_rriGraph"
+                    class="com.github.mikephil.charting.charts.LineChart"
+                    id="@+id/view"
+                    layout_width="match_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" />
+
+                <view
+                    android:id="@+id/experiment_angryGraph"
+                    class="com.github.mikephil.charting.charts.LineChart"
+                    id="@+id/view"
+                    layout_width="match_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
 
 </FrameLayout>

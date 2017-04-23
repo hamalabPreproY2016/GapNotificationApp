@@ -3,7 +3,9 @@ package com.example.develop.gapnotificationapp.experiment;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.Log.GapFileManager;
+import com.example.develop.gapnotificationapp.camera.Camera;
 import com.example.develop.gapnotificationapp.model.Emg;
 import com.example.develop.gapnotificationapp.model.Face;
 import com.example.develop.gapnotificationapp.model.Heartrate;
@@ -11,9 +13,6 @@ import com.example.develop.gapnotificationapp.model.ResponseAngry;
 import com.example.develop.gapnotificationapp.model.Voice;
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
-import com.example.develop.gapnotificationapp.GapNotificationApplication;
-import com.example.develop.gapnotificationapp.Log.GapFileManager;
-import com.example.develop.gapnotificationapp.camera.Camera;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response.ResponseAverage;
 import com.example.develop.gapnotificationapp.rest.RestManager;
 import com.example.develop.gapnotificationapp.voice.RealTimeVoiceSlicer;
@@ -23,7 +22,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.LongSummaryStatistics;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,7 +42,6 @@ public class ExperimentManager {
     private boolean[] _flag = new boolean[4]; // 各デバイスのデータが揃っているのかの管理
     private File _rootDirectory; // 実験ログを保存するルートディレクトリ
     private RestManager _restManager; // RestAPIを管理する
-    private SensorStruct _sensor = new SensorStruct();
     private ExperimentManagerListener _listener = null;
 
     // 筋電平均取得時間関係
@@ -80,7 +77,8 @@ public class ExperimentManager {
     }
 
     // 実験開始
-    public void Start(){
+    public void Start(ExperimentManagerListener listener){
+        _listener = listener;
         // 実験開始時間を保存
         _startTime = System.currentTimeMillis();
         // 実験ディレクトリを取得する

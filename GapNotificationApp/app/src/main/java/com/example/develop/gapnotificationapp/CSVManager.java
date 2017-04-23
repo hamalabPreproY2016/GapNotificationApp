@@ -1,6 +1,5 @@
 package com.example.develop.gapnotificationapp;
 
-import com.example.develop.gapnotificationapp.experiment.SensorStruct;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
@@ -20,11 +19,15 @@ import java.util.List;
 public class CSVManager {
     File mFile;
 
+    public File getCSVFile() {
+        return  mFile;
+    }
+
     public CSVManager(File file) {
         mFile = file;
     }
 
-    public void csvWrite(List<SensorStruct.origin> list) throws IOException {
+    public void csvWrite(List<CSVLineParser> list) throws IOException {
         FileOutputStream output = null;
         OutputStreamWriter oWriter = null;
         CSVWriter csvWriter = null;
@@ -34,7 +37,7 @@ public class CSVManager {
             csvWriter = new CSVWriter(oWriter);
             CSVWriter finalCsvWriter = csvWriter;
             list.forEach(s -> {
-                finalCsvWriter.writeNext(s.toCSVStrings());
+                finalCsvWriter.writeNext(s.parseCSVLine(this));
             });
             csvWriter.close();
             oWriter.close();
@@ -53,7 +56,7 @@ public class CSVManager {
         }
     }
 
-    public List csvRead(ConvertFromStringsListener listener) {
+    public List csvRead(ParseObjectFactory factory) {
         FileReader reader = null;
         CSVReader csvReader = null;
 
@@ -65,8 +68,10 @@ public class CSVManager {
             List<String[]> entries = csvReader.readAll();
             List finalRetList =  new ArrayList();
             entries.forEach(s -> {
-                if (listener != null) {
-                    finalRetList.add(listener.convertToObjectFromStrings(s));
+                if (factory != null) {
+                    CSVLineParser newObject = factory.create();
+                    newObject.setPropertyFromCSVLine(this, s);
+                    finalRetList.add(newObject);
                 } else {
                     finalRetList.add(s);
                 }
@@ -92,7 +97,13 @@ public class CSVManager {
         return retList;
     }
 
-    public interface ConvertFromStringsListener {
-        public Object convertToObjectFromStrings(String[] strings);
+    public interface ParseObjectFactory {
+        CSVLineParser create();
+    }
+
+    public interface CSVLineParser {
+        String[] parseCSVLine(CSVManager manager);
+
+        void setPropertyFromCSVLine(CSVManager manager, String[] strings);
     }
 }
