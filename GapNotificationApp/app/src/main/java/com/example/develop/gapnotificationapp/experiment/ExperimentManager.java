@@ -16,6 +16,7 @@ import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.Reque
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response.ResponseAverage;
 import com.example.develop.gapnotificationapp.rest.RestManager;
 import com.example.develop.gapnotificationapp.voice.RealTimeVoiceSlicer;
+import com.example.develop.gapnotificationapp.voice.VoiceSliceListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -76,7 +77,8 @@ public class ExperimentManager {
     }
 
     // 実験開始
-    public void Start(){
+    public void Start(ExperimentManagerListener listener){
+        _listener = listener;
         // 実験開始時間を保存
         _startTime = System.currentTimeMillis();
         // 実験ディレクトリを取得する

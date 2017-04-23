@@ -112,6 +112,7 @@ public class BLEFragment extends Fragment {
                             rxBleScanResult -> {
                                 _adapter.addScanResult(rxBleScanResult);
 //                                Log.d("D", "scan success");
+                                scanSubscription.unsubscribe();
                             },
                             throwable -> {
                                 // Handle an error here.
@@ -143,13 +144,20 @@ public class BLEFragment extends Fragment {
 
     @OnClick(R.id.button_start_observe)
     public void pushObservationButton() {
-        segueGraphFragment();
+        segueExperimentFragment();
     }
 
     private void segueGraphFragment() {
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
 
         GraphFragment newFragment = new GraphFragment();
+        fragmentTransaction.replace(R.id.container, newFragment).commit();
+    }
+
+    private void segueExperimentFragment() {
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+
+        ExperimentFragment newFragment = new ExperimentFragment();
         fragmentTransaction.replace(R.id.container, newFragment).commit();
     }
 
