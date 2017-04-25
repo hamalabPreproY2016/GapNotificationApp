@@ -1,0 +1,48 @@
+{
+	"heartrate" : [
+		{
+			"time" : 341,
+			"value" : 456
+		},
+		{
+			"time" : 342,
+			"value" : 456
+		},
+		{
+			"time" : 343,
+			"value" : 456
+		},
+		{
+			"time" : 344,
+			"value" : 456
+		},
+		{
+			"time" : 345,
+			"value" : 456
+		}
+	],
+	"emg" : [
+		{
+			"time" : 345,
+			"value" : 456
+		},
+		{
+			"time" : 345,
+			"value" : 456
+		},
+		{
+			"time" : 345,
+			"value" : 456
+		},
+		{
+			"time" : 345,
+			"value" : 456
+		},
+		{
+			"time" : 345,
+			"value" : 456
+		}
+	],
+	"emg-ave" : 456,
+	"send-time" : "478378357954354354"
+}

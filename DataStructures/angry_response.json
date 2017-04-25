@@ -1,0 +1,18 @@
+{
+	"heartrate" : {
+		"result" : false
+	},
+	"emg" : {
+		"result" : false
+	},
+	"voice" : {
+		"result" : 0.99
+	},
+	"face" : {
+		"result" : true
+	},
+	"angry-body" : false,
+	"angry-look" : true,
+	"angry-gap" : true,
+	"send-time" : "478378357954354354"
+}
