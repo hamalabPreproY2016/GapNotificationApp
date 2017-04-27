@@ -59,5 +59,7 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
 
+    compile 'commons-lang:commons-lang:2.6'
+
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }

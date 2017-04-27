@@ -19,6 +19,16 @@ import java.util.List;
 public class CSVManager {
     File mFile;
 
+    public static File createCSVDirectory(File parentDir) {
+        File csvDir = new File(parentDir, "csv");
+
+        if (!csvDir.exists() || !csvDir.isDirectory()) {
+            csvDir.mkdir();
+        }
+
+        return csvDir;
+    }
+
     public File getCSVFile() {
         return  mFile;
     }
@@ -27,7 +37,7 @@ public class CSVManager {
         mFile = file;
     }
 
-    public void csvWrite(List<CSVLineParser> list) throws IOException {
+    public void csvWrite(List<? extends CSVLineParser> list) {
         FileOutputStream output = null;
         OutputStreamWriter oWriter = null;
         CSVWriter csvWriter = null;
@@ -43,15 +53,21 @@ public class CSVManager {
             oWriter.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
-            if (csvWriter != null) {
-                csvWriter.close();
-            }
-            if (oWriter != null) {
-                oWriter.close();
-            }
-            if (output != null) {
-                output.close();
+            try {
+                if (csvWriter != null) {
+                    csvWriter.close();
+                }
+                if (oWriter != null) {
+                    oWriter.close();
+                }
+                if (output != null) {
+                    output.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

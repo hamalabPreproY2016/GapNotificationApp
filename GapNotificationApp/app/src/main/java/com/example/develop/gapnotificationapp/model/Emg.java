@@ -16,7 +16,7 @@ public class Emg extends PojoObject{
 
     @Override
     public String[] parseCSVLine(CSVManager manager) {
-        return new String[]{time, value.toString()};
+        return new String[] {time, value.toString()};
     }
 
     @Override

@@ -44,8 +44,16 @@
                     android:layout_height="300dp" />
 
                 <view
-                    android:id="@+id/experiment_angryGraph"
+                    android:id="@+id/experiment_emgGraph"
                     class="com.github.mikephil.charting.charts.LineChart"
+                    id="@+id/view"
+                    layout_width="match_parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp" />
+
+                <view
+                    android:id="@+id/experiment_angryGraph"
+                    class="com.github.mikephil.charting.charts.HorizontalBarChart"
                     id="@+id/view"
                     layout_width="match_parent"
                     android:layout_width="match_parent"
