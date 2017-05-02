@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -19,13 +20,25 @@ import com.example.develop.gapnotificationapp.model.Face;
 import com.example.develop.gapnotificationapp.model.Heartrate;
 import com.example.develop.gapnotificationapp.model.ResponseAngry;
 import com.example.develop.gapnotificationapp.model.Voice;
+import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+
+import org.apache.commons.lang.ArrayUtils;
+
+import java.io.File;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,8 +52,11 @@ public class ExperimentFragment extends Fragment {
     @BindView(R.id.experiment_rriGraph)
     public LineChart rriGraph;
 
+    @BindView(R.id.experiment_emgGraph)
+    public LineChart emgGraph;
+
     @BindView(R.id.experiment_angryGraph)
-    public LineChart angryGraph;
+    public HorizontalBarChart angryGraph;
 
     @BindView(R.id.experiment_start_button)
     Button _startButton ;
@@ -52,6 +68,8 @@ public class ExperimentFragment extends Fragment {
 
 //    @BindView(R.id.tabhost)
 //    TabHost _tabHost;
+
+    public File csvDir = null;
 
     Camera camera;
 
@@ -112,6 +130,7 @@ public class ExperimentFragment extends Fragment {
         // Inflate the layout for this fragment
 
         setRRIGraph();
+        setEmgGraph();
         setAngryGraph();
 
         return view;
@@ -123,26 +142,44 @@ public class ExperimentFragment extends Fragment {
             _expManager.Start(new ExperimentManagerListener() {
                 @Override
                 public void GetHeartRate(Heartrate heartrate) {
-                    LineData data = rriGraph.getLineData();
+                    addPojoDataToHeartrateGraph(heartrate);
 
-                    ILineDataSet set = data.getDataSetByIndex(0);
-                    if (set == null) {
-                        set = new LineDataSet(null, "RRI");
-                        set.setDrawValues(false);
-                        data.addDataSet(set);
-                    }
-
-                    data.addEntry(new Entry(Float.parseFloat(heartrate.time), heartrate.value.intValue()), 0);
-
-                    rriGraph.notifyDataSetChanged();
-                    rriGraph.setVisibleXRangeMaximum(20000);
-                    rriGraph.setVisibleXRangeMinimum(20000);
-                    rriGraph.moveViewToX(Float.parseFloat(heartrate.time));
+//                    LineData data = rriGraph.getLineData();
+//
+//                    ILineDataSet set = data.getDataSetByIndex(0);
+//                    if (set == null) {
+//                        set = new LineDataSet(null, "RRI");
+//                        set.setDrawValues(false);
+//                        data.addDataSet(set);
+//                    }
+//
+//                    data.addEntry(new Entry(Float.parseFloat(heartrate.time), heartrate.value.intValue()), 0);
+//
+//                    rriGraph.notifyDataSetChanged();
+//                    rriGraph.setVisibleXRangeMaximum(20000);
+//                    rriGraph.setVisibleXRangeMinimum(20000);
+//                    rriGraph.moveViewToX(Float.parseFloat(heartrate.time));
                 }
 
                 @Override
-                public void GetEmg(Emg data) {
+                public void GetEmg(Emg emg) {
+                    addPojoDataToEmgGraph(emg);
 
+//                    LineData data = emgGraph.getLineData();
+//
+//                    ILineDataSet set = data.getDataSetByIndex(0);
+//                    if (set == null) {
+//                        set = new LineDataSet(null, "RRI");
+//                        set.setDrawValues(false);
+//                        data.addDataSet(set);
+//                    }
+//
+//                    data.addEntry(new Entry(Float.parseFloat(emg.time), emg.value.intValue()), 0);
+//
+//                    emgGraph.notifyDataSetChanged();
+//                    emgGraph.setVisibleXRangeMaximum(20000);
+//                    emgGraph.setVisibleXRangeMinimum(20000);
+//                    emgGraph.moveViewToX(Float.parseFloat(emg.time));
                 }
 
                 @Override
@@ -162,42 +199,34 @@ public class ExperimentFragment extends Fragment {
 
                 @Override
                 public void GetAngry(ResponseAngry response) {
-                    LineData data = angryGraph.getLineData();
+                    addPojoDataToAngryGraph(response);
 
-                    ILineDataSet set_body = data.getDataSetByIndex(0);
-                    if (set_body == null) {
-                        LineDataSet lineData = new LineDataSet(null, "AngryBody");
-                        lineData.setColor(Color.RED);
-                        lineData.setDrawFilled(true);
-                        lineData.setDrawValues(false);
-                        data.addDataSet(lineData);
-                    }
-                    data.addEntry(new Entry(Float.parseFloat(response.sendTime), response.angryBody ? 1 : 0), 0);
-
-                    ILineDataSet set_Look = data.getDataSetByIndex(1);
-                    if (set_Look == null) {
-                        LineDataSet lineData = new LineDataSet(null, "AngryLook");
-                        lineData.setColor(Color.BLUE);
-                        lineData.setDrawFilled(true);
-                        lineData.setDrawValues(false);
-                        data.addDataSet(lineData);
-                    }
-                    data.addEntry(new Entry(Float.parseFloat(response.sendTime), response.angryLook ? 1 : 0), 1);
-
-                    ILineDataSet set_Gap = data.getDataSetByIndex(2);
-                    if (set_Gap == null) {
-                        LineDataSet lineData = new LineDataSet(null, "AngryGap");
-                        lineData.setColor(Color.YELLOW);
-                        lineData.setDrawFilled(true);
-                        lineData.setDrawValues(false);
-                        data.addDataSet(lineData);
-                    }
-                    data.addEntry(new Entry(Float.parseFloat(response.sendTime), response.angryGap ? 1 : 0), 2);
-
-                    angryGraph.notifyDataSetChanged();
-                    angryGraph.setVisibleXRangeMaximum(20000);
-                    angryGraph.setVisibleXRangeMinimum(20000);
-                    angryGraph.moveViewToX(Float.parseFloat(response.sendTime));
+//                    float fSendTime = Float.parseFloat(response.sendTime);
+//
+//                    BarData data = angryGraph.getBarData();
+//
+//                    IBarDataSet set_body = data.getDataSetByIndex(0);
+//                    BarDataSet newBody = addAngryDataToDataset(set_body, fSendTime, response.angryBody);
+//
+//                    IBarDataSet set_Look = data.getDataSetByIndex(1);
+//                    BarDataSet newLook = addAngryDataToDataset(set_Look, fSendTime, response.angryLook);
+//
+//                    IBarDataSet set_Gap = data.getDataSetByIndex(2);
+//                    BarDataSet newGap = addAngryDataToDataset(set_Gap, fSendTime, response.angryGap);
+//
+//                    BarData newData = new BarData();
+//                    newData.addDataSet(newBody);
+//                    newData.addDataSet(newLook);
+//                    newData.addDataSet(newGap);
+//
+//                    angryGraph.setData(newData);
+//
+//                    angryGraph.notifyDataSetChanged();
+//                    angryGraph.postInvalidate();
+//
+//                    YAxis axis = angryGraph.getAxisRight();
+//                    axis.setAxisMaximum(Math.max(20000.0f, fSendTime));
+//                    axis.setAxisMinimum(Math.max(0, fSendTime - 20000));
                 }
             });
             _startButton.setText("すとっぷ");
@@ -206,6 +235,105 @@ public class ExperimentFragment extends Fragment {
             _startButton.setText("すたーと");
         }
         isRunning = !isRunning;
+    }
+
+    private void addPojoDataToHeartrateGraph(Heartrate heartrate) {
+        LineData data = rriGraph.getLineData();
+
+        ILineDataSet set = data.getDataSetByIndex(0);
+        if (set == null) {
+            set = new LineDataSet(null, "RRI");
+            set.setDrawValues(false);
+            data.addDataSet(set);
+        }
+
+        data.addEntry(new Entry(Float.parseFloat(heartrate.time), heartrate.value.intValue()), 0);
+
+        rriGraph.notifyDataSetChanged();
+        rriGraph.setVisibleXRangeMaximum(20000);
+        rriGraph.setVisibleXRangeMinimum(20000);
+        rriGraph.moveViewToX(Float.parseFloat(heartrate.time));
+    }
+
+    private void addPojoDataToEmgGraph(Emg emg) {
+
+        LineData data = emgGraph.getLineData();
+
+        ILineDataSet set = data.getDataSetByIndex(0);
+        if (set == null) {
+            set = new LineDataSet(null, "RRI");
+            set.setDrawValues(false);
+            data.addDataSet(set);
+        }
+
+        data.addEntry(new Entry(Float.parseFloat(emg.time), emg.value.intValue()), 0);
+
+        emgGraph.notifyDataSetChanged();
+        emgGraph.setVisibleXRangeMaximum(20000);
+        emgGraph.setVisibleXRangeMinimum(20000);
+        emgGraph.moveViewToX(Float.parseFloat(emg.time));
+    }
+
+    private void addPojoDataToAngryGraph(ResponseAngry response) {
+
+        float fSendTime = Float.parseFloat(response.sendTime);
+
+        BarData data = angryGraph.getBarData();
+
+        IBarDataSet set_body = data.getDataSetByIndex(0);
+        BarDataSet newBody = addAngryDataToDataset(set_body, fSendTime, response.angryBody);
+
+        IBarDataSet set_Look = data.getDataSetByIndex(1);
+        BarDataSet newLook = addAngryDataToDataset(set_Look, fSendTime, response.angryLook);
+
+        IBarDataSet set_Gap = data.getDataSetByIndex(2);
+        BarDataSet newGap = addAngryDataToDataset(set_Gap, fSendTime, response.angryGap);
+
+        BarData newData = new BarData();
+        newData.addDataSet(newBody);
+        newData.addDataSet(newLook);
+        newData.addDataSet(newGap);
+
+        angryGraph.setData(newData);
+
+        angryGraph.notifyDataSetChanged();
+        angryGraph.postInvalidate();
+
+        YAxis axis = angryGraph.getAxisRight();
+        axis.setAxisMaximum(Math.max(20000.0f, fSendTime));
+        axis.setAxisMinimum(Math.max(0, fSendTime - 20000));
+    }
+
+    private BarDataSet addAngryDataToDataset(IBarDataSet dataSet, float time, boolean isAngry) {
+        BarDataSet mDataSet = (BarDataSet)dataSet;
+        BarEntry entry = dataSet.getEntryForIndex(0);
+        float[] values = entry.getYVals();
+        //最新の状態が怒りかどうか判定
+        if (values.length % 2 != (isAngry ? 1 : 0)) {
+            //違ったら要素を追加
+            values = ArrayUtils.add(values, 0);
+        }
+        float intervalTime = time;
+
+        for (int i = 0; i < values.length - 1; i++) {
+            intervalTime -= values[i];
+        }
+
+        values[values.length - 1] = intervalTime;
+
+        entry.setVals(values);
+
+        float[] finalValues1 = values;
+        BarDataSet retDataSet = new BarDataSet(new ArrayList<BarEntry>() {{
+            add(new BarEntry((float)entry.getX(), finalValues1));
+        }}, dataSet.getLabel());
+
+        retDataSet.setColors(dataSet.getColors());
+        retDataSet.setAxisDependency(dataSet.getAxisDependency());
+
+        Log.d("angry", "val:" + values.toString());
+
+        return retDataSet;
     }
 
     private void setRRIGraph() {
@@ -225,6 +353,27 @@ public class ExperimentFragment extends Fragment {
         rriGraph.getAxisRight().setEnabled(false);
 
         XAxis xAxis = rriGraph.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+    }
+
+    private void setEmgGraph() {
+        emgGraph.setTouchEnabled(false);
+        emgGraph.setDragEnabled(false);
+        emgGraph.setScaleEnabled(false);
+
+        LineData data = new LineData();
+        data.setValueTextColor(Color.RED);
+
+        emgGraph.setData(data);
+
+        YAxis leftAxis = emgGraph.getAxisLeft();
+        leftAxis.setAxisMaximum(1500);
+        leftAxis.setAxisMinimum(0);
+
+        emgGraph.getAxisRight().setEnabled(false);
+
+        XAxis xAxis = emgGraph.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
     }
 
     private void setAngryGraph() {
@@ -232,17 +381,55 @@ public class ExperimentFragment extends Fragment {
         angryGraph.setDragEnabled(false);
         angryGraph.setScaleEnabled(false);
 
-        LineData data = new LineData();
-        data.setValueTextColor(Color.RED);
-
-        angryGraph.setData(data);
-
-        YAxis leftAxis = angryGraph.getAxisLeft();
-        leftAxis.setAxisMaximum(1);
-        leftAxis.setAxisMinimum(0);
-
-        angryGraph.getAxisRight().setEnabled(false);
+        YAxis bottomAxis = angryGraph.getAxisLeft();
+        bottomAxis.setEnabled(false);
 
         XAxis xAxis = angryGraph.getXAxis();
+        xAxis.setGranularity(1f);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        final String[] dataSetXLabels = new String[] {"body", "Look", "gap"};
+
+        xAxis.setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return dataSetXLabels[(int)value - 1];
+            }
+        });
+
+        BarData data = new BarData();
+        data.setDrawValues(false);
+
+        final int[] dataSetColors = new int[] {Color.CYAN, Color.MAGENTA};
+        final String[] dataSetStackLabels = new String[] {"normal", "angry"};
+
+        for (int i = 0; i < dataSetXLabels.length; i++) {
+            int finalI = i;
+            BarDataSet dataSet = new BarDataSet(new ArrayList<BarEntry>() {{
+                add(new BarEntry((float)finalI + 1, new float[] {0}));
+            }}, dataSetXLabels[i]);
+            dataSet.setColors(dataSetColors);
+            dataSet.setStackLabels(dataSetStackLabels);
+            dataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
+            data.addDataSet(dataSet);
+        }
+        angryGraph.setData(data);
+    }
+
+    private void previewCSVData() {
+        if (csvDir == null || !csvDir.exists() || !csvDir.isDirectory()) {
+            return;
+        }
+
+        CSVManager hCSVManager = new CSVManager(new File(csvDir, "heartrate.csv"));
+        ArrayList<Heartrate> heartrates = (ArrayList<Heartrate>) hCSVManager.csvRead(new CSVManager.ParseObjectFactory() {
+            @Override
+            public CSVManager.CSVLineParser create() {
+                return new Heartrate();
+            }
+        });
+
+        heartrates.forEach(heartrate -> {
+            addPojoDataToHeartrateGraph(heartrate);
+        });
     }
 }
