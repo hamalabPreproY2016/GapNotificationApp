@@ -1,17 +1,17 @@
 {
 	"heartrate" : {
-		"result" : false
+		"angryValue" : 0.4566
 	},
 	"emg" : {
-		"isAngry" : false,
-		"isMove" : false
+		"angryValue" : 0.34232,
+		"isMove" : true
 	},
 	"voice" : {
-		"isAngry" : 0.99,
+		"angryValue" : 0.99,
 		"enabled" : true
 	},
 	"face" : {
-		"isAngry" : true,
+		"angryValue" : 0.21432,
 		"isFace" : true
 	},
 	"angry-body" : false,
