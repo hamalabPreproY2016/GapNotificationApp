@@ -6,8 +6,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class Heartrate {
 
-    @SerializedName("result")
+    @SerializedName("angryValue")
     @Expose
-    public Boolean result;
+    public Double angryValue;
 
 }

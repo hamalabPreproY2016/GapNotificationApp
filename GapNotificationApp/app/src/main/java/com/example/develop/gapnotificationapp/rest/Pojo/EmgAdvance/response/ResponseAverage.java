@@ -1,5 +1,5 @@
 
-package com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response;
+package com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

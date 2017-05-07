@@ -12,8 +12,9 @@ import com.example.develop.gapnotificationapp.model.Heartrate;
 import com.example.develop.gapnotificationapp.model.ResponseAngry;
 import com.example.develop.gapnotificationapp.model.Voice;
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
-import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
-import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response.ResponseAverage;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.RequestPrepareEMG;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseAverage;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseMVE;
 import com.example.develop.gapnotificationapp.rest.RestManager;
 import com.example.develop.gapnotificationapp.voice.RealTimeVoiceSlicer;
 import com.example.develop.gapnotificationapp.voice.VoiceSliceListener;
@@ -48,7 +49,7 @@ public class ExperimentManager {
 //    private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
     private final long _average_time_milliseconds = 10 * 1000; // 10秒間の平均取得時間
     private boolean _isGetAverageEmgSession;
-    private int _averageEmg;
+    private int _MVE;
 
     private List<Voice> _voiceData = new ArrayList<>(); // 音声データ
     private List<Face> _faceData = new ArrayList<>(); // カメラデータ
@@ -241,7 +242,7 @@ public class ExperimentManager {
         /* 送信データ作成 */
         RequestAngry sendJson = new RequestAngry();
         sendJson.sendTime = Long.toString(getRemmaningTime()); // 送信時間
-        sendJson.emgAve = _averageEmg; // 筋電の平均
+        sendJson.emgMve = _MVE; // 筋電の平均
 
         // 心拍の送信データの作成
         // 過去256個のデータを取得
@@ -288,18 +289,18 @@ public class ExperimentManager {
         // 現在の経過時間が平常値取得時間よりも長かった場合は
         if (getRemmaningTime() > _average_time_milliseconds){
             // pojofileを作成
-            RequestAverage request_average = new RequestAverage();
+            RequestPrepareEMG request_average = new RequestPrepareEMG();
             request_average.emg = new ArrayList<>(_emgData);
             // 筋電をAPIに送って平均値を取得する
-            _restManager.postEmgAverage(request_average, new Callback<ResponseAverage>() {
-                @Override
-                public void onResponse(Call<ResponseAverage> call, Response<ResponseAverage> response) {
+            _restManager.postEmgMVE(request_average, new Callback<ResponseMVE>() {
+            @Override
+                public void onResponse(Call<ResponseMVE> call, Response<ResponseMVE> response) {
                     if (response.code() == 200) {
-                        Log.d(TAG, "average emg :" + Double.toString(response.body().average));
+                        Log.d(TAG, "average mve :" + Double.toString(response.body().mve));
                         _isGetAverageEmgSession = false;
-                        _averageEmg = response.body().average;
+                        _MVE = response.body().mve;
                         if(_listener != null) {
-                            _listener.GetEmgAverage(_averageEmg);
+                            _listener.GetEmgAverage(_MVE);
                         }
                     } else {
                         Log.d(TAG, "access error : status code " + Integer.toString(response.code()));
@@ -308,7 +309,7 @@ public class ExperimentManager {
                 }
 
                 @Override
-                public void onFailure(Call<ResponseAverage> call, Throwable t) {
+                public void onFailure(Call<ResponseMVE> call, Throwable t) {
 
                 }
             });

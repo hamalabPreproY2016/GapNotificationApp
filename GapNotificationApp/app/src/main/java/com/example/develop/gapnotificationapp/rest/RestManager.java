@@ -3,8 +3,9 @@ package com.example.develop.gapnotificationapp.rest;
 
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
 import com.example.develop.gapnotificationapp.model.ResponseAngry;
-import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
-import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response.ResponseAverage;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.RequestPrepareEMG;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseAverage;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseMVE;
 import com.google.gson.Gson;
 
 import java.io.File;
@@ -37,8 +38,12 @@ public class RestManager {
     public Retrofit getRetrofit(){
         return _retrofit;
     }
-    public void postEmgAverage(RequestAverage body, Callback<ResponseAverage> listener){
+    public void postEmgAverage(RequestPrepareEMG body, Callback<ResponseAverage> listener){
         Call<ResponseAverage> call = _service.postEmgAverage(body);
+        call.enqueue(listener);
+    }
+    public void postEmgMVE(RequestPrepareEMG body, Callback<ResponseMVE> listener){
+        Call<ResponseMVE> call = _service.postEmgMVE(body);
         call.enqueue(listener);
     }
     // 取得したセンサーデータを送る

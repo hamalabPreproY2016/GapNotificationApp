@@ -2,8 +2,9 @@ package com.example.develop.gapnotificationapp.rest;
 
 
 import com.example.develop.gapnotificationapp.model.ResponseAngry;
-import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.request.RequestAverage;
-import com.example.develop.gapnotificationapp.rest.Pojo.EmgAverage.response.ResponseAverage;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.RequestPrepareEMG;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseAverage;
+import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseMVE;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -19,7 +20,10 @@ import retrofit2.http.Part;
 public interface GapServer {
     
     @POST("/emg-ave")
-    Call<ResponseAverage> postEmgAverage(@Body RequestAverage body);
+    Call<ResponseAverage> postEmgAverage(@Body RequestPrepareEMG body);
+
+    @POST("/emg-mve")
+    Call<ResponseMVE> postEmgMVE(@Body RequestPrepareEMG body);
 
     @Multipart
     @POST("/angry")

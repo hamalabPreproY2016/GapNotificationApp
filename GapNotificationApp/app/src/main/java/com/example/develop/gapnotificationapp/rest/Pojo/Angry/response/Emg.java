@@ -6,8 +6,11 @@ import com.google.gson.annotations.SerializedName;
 
 public class Emg {
 
-    @SerializedName("result")
+    @SerializedName("angryValue")
     @Expose
-    public Boolean result;
+    public Double angryValue;
+    @SerializedName("isMove")
+    @Expose
+    public Boolean isMove;
 
 }

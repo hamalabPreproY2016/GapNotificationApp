@@ -16,9 +16,9 @@ public class RequestAngry {
     @SerializedName("emg")
     @Expose
     public List<Emg> emg = null;
-    @SerializedName("emg-ave")
+    @SerializedName("emg-mve")
     @Expose
-    public Integer emgAve;
+    public Integer emgMve;
     @SerializedName("send-time")
     @Expose
     public String sendTime;

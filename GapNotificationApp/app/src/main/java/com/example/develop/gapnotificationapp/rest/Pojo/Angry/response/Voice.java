@@ -6,8 +6,10 @@ import com.google.gson.annotations.SerializedName;
 
 public class Voice {
 
-    @SerializedName("result")
+    @SerializedName("angryValue")
     @Expose
-    public Float result;
-
+    public Double angryValue;
+    @SerializedName("enabled")
+    @Expose
+    public Boolean enabled;
 }

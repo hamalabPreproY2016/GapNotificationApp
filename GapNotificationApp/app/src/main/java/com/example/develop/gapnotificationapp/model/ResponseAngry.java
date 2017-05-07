@@ -12,7 +12,7 @@ public class ResponseAngry extends PojoObject {
 
     @SerializedName("heartrate")
     @Expose
-    public com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Heartrate heartrate;
+    public Heartrate heartrate;
     @SerializedName("emg")
     @Expose
     public Emg emg;

@@ -5,9 +5,11 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Face {
-
-    @SerializedName("result")
+    @SerializedName("angryValue")
     @Expose
-    public Boolean result;
+    public Double angryValue;
+    @SerializedName("isFace")
+    @Expose
+    public Boolean isFace;
 
 }
