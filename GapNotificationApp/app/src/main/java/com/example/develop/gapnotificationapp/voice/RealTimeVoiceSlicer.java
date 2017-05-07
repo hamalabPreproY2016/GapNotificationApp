@@ -24,6 +24,7 @@ public class RealTimeVoiceSlicer {
     private Timer timer ;
     private  VoiceSliceListener _listener = null;
     private String _current_file_name;
+    private MediaRecorder recorder = null;
 
     // コンストラクタ
     public RealTimeVoiceSlicer(Context context){
@@ -55,8 +56,8 @@ public class RealTimeVoiceSlicer {
     // 次の録音を始める
     private void next(){
 
-        //  最初の録音時ではないとき
-        if (audioRecord != null ) {
+        //  既に録音していたら停止する
+        if (recorder != null ) {
             // 前のレコードを停止
             stopAudioRecord();
             // リスナーが設定されていれば呼び出す
@@ -64,13 +65,19 @@ public class RealTimeVoiceSlicer {
                 _listener.Recorded(new File(_current_file_name));
             }
         }
+        recorder = new MediaRecorder();
+
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
 
         // 新しいレコードファイル名を取得
         _current_file_name = new File(_directory ,String.format("%03d.wav", _counter)).toString();
-        // 新しいレコードファイルを作成
-        initAudioRecord(_current_file_name);
+        recorder.setOutputFile(_current_file_name);
+
         // レコードを開始
         startAudioRecord();
+
         Log.d("RecordProto", _current_file_name);
         _counter ++;
     }
@@ -79,58 +86,18 @@ public class RealTimeVoiceSlicer {
         _listener = listener;
     }
 
-    // 音声関係のプロパティ
-    AudioRecord audioRecord; //録音用のオーディオレコードクラス
-    private short[] shortData; //オーディオレコード用バッファ
-    private WaveFile nowRecordingWavFile = new WaveFile();
-    private static final int SAMPLING_RATE = SoundDefine.SAMPLING_RATE;
-    private int bufSize;//オーディオレコード用バッファのサイズ
-
-    // 新しいレコードファイルを作成
-    private void initAudioRecord(String file_name){
-        nowRecordingWavFile.createFile(file_name);
-        // AudioRecordオブジェクトを作成
-        bufSize = AudioRecord.getMinBufferSize(SAMPLING_RATE,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT);
-        audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                SAMPLING_RATE,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                bufSize);
-
-        shortData = new short[bufSize / 2];
-
-        // コールバックを指定
-        audioRecord.setRecordPositionUpdateListener(new AudioRecord.OnRecordPositionUpdateListener() {
-            // フレームごとの処理
-            @Override
-            public void onPeriodicNotification(AudioRecord recorder) {
-                audioRecord.read(shortData, 0, bufSize / 2); // 読み込む
-                nowRecordingWavFile.addBigEndianData(shortData); // ファイルに書き出す
-            }
-
-            @Override
-            public void onMarkerReached(AudioRecord recorder) {
-                // TODO Auto-generated method stub
-
-            }
-        });
-        // コールバックが呼ばれる間隔を指定
-        audioRecord.setPositionNotificationPeriod(bufSize / 2);
-    }
-
     // オーディオレコードを開始する
     private void startAudioRecord(){
-        Log.d(TAG, "yahoo");
-        audioRecord.startRecording();
-        Log.d(TAG, "yahoo");
-        audioRecord.read(shortData, 0, bufSize/2);
+        try {
+            recorder.prepare();
+            recorder.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //オーディオレコードを停止する
     private void stopAudioRecord(){
-            nowRecordingWavFile.close();
-            audioRecord.stop();
+        recorder.stop();
     }
 }
