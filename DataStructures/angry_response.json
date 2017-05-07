@@ -3,13 +3,16 @@
 		"result" : false
 	},
 	"emg" : {
-		"result" : false
+		"isAngry" : false,
+		"isMove" : false
 	},
 	"voice" : {
-		"result" : 0.99
+		"isAngry" : 0.99,
+		"enabled" : true
 	},
 	"face" : {
-		"result" : true
+		"isAngry" : true,
+		"isFace" : true
 	},
 	"angry-body" : false,
 	"angry-look" : true,
