@@ -129,6 +129,8 @@ public class ExperimentManager {
 //            }
 //        });
 
+        /*テスト*/
+        createTestMoule();
         // 筋電のテストデータ作成を開始
         CreateTestSensor();
     }
@@ -232,6 +234,10 @@ public class ExperimentManager {
         if (!isAllCompleted()) return;
 
 
+        // 心拍のデータが256個揃っていない場合は送らない
+        if(_heartRateData.size() < 256) return;
+
+
         /* 送信データ作成 */
         RequestAngry sendJson = new RequestAngry();
         sendJson.sendTime = Long.toString(getRemmaningTime()); // 送信時間
@@ -239,13 +245,13 @@ public class ExperimentManager {
 
         // 心拍の送信データの作成
         // 過去256個のデータを取得
-        int dataBegin = _heartRateData.size() - 256 < 0 ? 0 : _heartRateData.size() - 256;
+        int dataBegin = _heartRateData.size() - 256;
         sendJson.heartrate  = new ArrayList<>(_heartRateData.subList(dataBegin, _heartRateData.size()));
 
         // 筋電の送信データの作成
         sendJson.emg= new ArrayList<>(_emgData.subList(_nextSendBeginEMG, _emgData.size()));
 
-        // 全てのキャッシュを削除
+//        // 全てのキャッシュを削除
         cacheClear();
 
         // ネットワークに送信する
@@ -284,7 +290,6 @@ public class ExperimentManager {
             // pojofileを作成
             RequestAverage request_average = new RequestAverage();
             request_average.emg = new ArrayList<>(_emgData);
-            Log.d(TAG, Integer.toString(request_average.emg.size()));
             // 筋電をAPIに送って平均値を取得する
             _restManager.postEmgAverage(request_average, new Callback<ResponseAverage>() {
                 @Override
@@ -319,16 +324,33 @@ public class ExperimentManager {
             public void run() {
                 // 筋電の値を乱数で作成
                 Random r = new Random();
-                short value = (short)r.nextInt(300);
+                short value = (short)(r.nextInt(300) + 1);
                 setEmgCache(value);
 
                 // 心拍の値を乱数で作成
-                value = (short)r.nextInt(300);
+                value = (short)(r.nextInt(300) + 1);
                 setHeartRateCache(value);
 
 
             }
         }, 0, 1000);
+    }
+
+    private void createTestMoule(){
+        int COUNT = 300;
+        for(int i = 0; i < COUNT ; i ++){
+            // 筋電の値を乱数で作成
+            Random r = new Random();
+            short value = (short)(r.nextInt(300) + 1);
+            setEmgCache(value);
+
+            // 心拍の値を乱数で作成
+            value = (short)(r.nextInt(300) + 1);
+            setHeartRateCache(value);
+        }
+        Log.d(TAG, "create data : " + Integer.toString(COUNT));
+        Log.d(TAG, "size " + Integer.toString(_heartRateData.size()));
+
     }
 
 
