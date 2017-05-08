@@ -5,16 +5,20 @@ import android.app.Fragment;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.develop.gapnotificationapp.camera.Camera;
 import com.example.develop.gapnotificationapp.experiment.ExperimentManager;
 import com.example.develop.gapnotificationapp.experiment.ExperimentManagerListener;
+import com.example.develop.gapnotificationapp.experiment.GetMveManager;
+import com.example.develop.gapnotificationapp.experiment.GetMveManagerListener;
 import com.example.develop.gapnotificationapp.model.Emg;
 import com.example.develop.gapnotificationapp.model.Face;
 import com.example.develop.gapnotificationapp.model.Heartrate;
@@ -39,6 +43,9 @@ import org.apache.commons.lang.ArrayUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,6 +55,12 @@ import butterknife.OnClick;
  * A simple {@link Fragment} subclass.
  */
 public class ExperimentFragment extends Fragment {
+
+    @BindView(R.id.mve_toggle)
+    public Button mveToggle;
+
+    @BindView(R.id.mve_status_notification)
+    public TextView mveStatus;
 
     @BindView(R.id.experiment_rriGraph)
     public LineChart rriGraph;
@@ -132,13 +145,17 @@ public class ExperimentFragment extends Fragment {
         setRRIGraph();
         setEmgGraph();
         setAngryGraph();
-
+        _startButton.setEnabled(false);
         return view;
     }
 
     @OnClick(R.id.experiment_start_button)
     public void OnClick(){
-        if (!isRunning) {
+        if (!isRunning ) {
+            // MVEの測定が行われていなければ始めない
+            if (_MVE == -1){
+                return;
+            }
             _expManager.Start(new ExperimentManagerListener() {
                 @Override
                 public void GetHeartRate(Heartrate heartrate) {
@@ -228,7 +245,7 @@ public class ExperimentFragment extends Fragment {
 //                    axis.setAxisMaximum(Math.max(20000.0f, fSendTime));
 //                    axis.setAxisMinimum(Math.max(0, fSendTime - 20000));
                 }
-            });
+            }, _MVE);
             _startButton.setText("すとっぷ");
         } else {
             _expManager.Finish();
@@ -431,5 +448,64 @@ public class ExperimentFragment extends Fragment {
         heartrates.forEach(heartrate -> {
             addPojoDataToHeartrateGraph(heartrate);
         });
+    }
+
+    @OnClick(R.id.mve_toggle)
+    public void mveToggleClick(){
+        // カウントダウン開始
+        mveToggle.setEnabled(false);
+        mveToggle.setText("MVE測定準備");
+        // 表示用のカウントダウン(ほぼダミー)
+        Handler handler = new Handler();
+        Runnable r = new Runnable() {
+            int count = 5;
+            @Override
+            public void run() {
+                // UIスレッド
+                count--;
+                if (count < 0) {
+                    // mve測定を開始
+                    startGetMve();
+                    return;
+                }
+                mveStatus.setText("測定中" + Integer.toString(count));
+                handler.postDelayed(this, 1000);
+            }
+        };
+        handler.post(r);
+    }
+    private int _MVE = -1;
+    // mve測定を開始
+    public void startGetMve(){
+        mveToggle.setText("MVE測定中");
+        GetMveManager manager = new GetMveManager();
+        manager.setListener(new GetMveManagerListener() {
+            @Override
+            public void getMve(int mve) {
+                // 測定終了し実験開始可能へ
+                _MVE = mve;
+                mveToggle.setText("MVE測定開始");
+                mveToggle.setEnabled(true);
+                mveStatus.setText("MVE" + Integer.toString(_MVE));
+                _startButton.setEnabled(true);
+            }
+        });
+        // 表示用のカウントダウン(ほぼダミー)
+        Handler handler = new Handler();
+        Runnable r = new Runnable() {
+            int count = 10;
+            @Override
+            public void run() {
+                // UIスレッド
+                count--;
+                if (count < 0) { // 5回実行したら終了
+                    return;
+                }
+                mveStatus.setText("測定中" + Integer.toString(count));
+                handler.postDelayed(this, 1000);
+            }
+        };
+        handler.post(r);
+        manager.Start();
     }
 }

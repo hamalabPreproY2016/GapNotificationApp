@@ -18,6 +18,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp" />
         </FrameLayout>
+        <Button
+            android:id="@+id/mve_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MVE取得を開始"/>
+        <TextView
+            android:id="@+id/mve_status_notification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="mve 取得無し"/>
 
         <Button
             android:id="@+id/experiment_start_button"

@@ -78,7 +78,8 @@ public class ExperimentManager {
     }
 
     // 実験開始
-    public void Start(ExperimentManagerListener listener){
+    public void Start(ExperimentManagerListener listener, int mve){
+        _MVE = mve;
         _listener = listener;
         // 実験開始時間を保存
         _startTime = System.currentTimeMillis();
