@@ -19,6 +19,8 @@ import com.example.develop.gapnotificationapp.experiment.ExperimentManager;
 import com.example.develop.gapnotificationapp.experiment.ExperimentManagerListener;
 import com.example.develop.gapnotificationapp.experiment.GetMveManager;
 import com.example.develop.gapnotificationapp.experiment.GetMveManagerListener;
+import com.example.develop.gapnotificationapp.experiment.HeartRateStorage;
+import com.example.develop.gapnotificationapp.experiment.HeartRateStorageListener;
 import com.example.develop.gapnotificationapp.model.Emg;
 import com.example.develop.gapnotificationapp.model.Face;
 import com.example.develop.gapnotificationapp.model.Heartrate;
@@ -43,6 +45,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -56,6 +59,11 @@ import butterknife.OnClick;
  */
 public class ExperimentFragment extends Fragment {
 
+    @BindView(R.id.startHeartRateStorage)
+    public Button getHeartRateToggle;
+
+    @BindView(R.id.heartrate_status)
+    public TextView heartRateStatus;
     @BindView(R.id.mve_toggle)
     public Button mveToggle;
 
@@ -245,7 +253,7 @@ public class ExperimentFragment extends Fragment {
 //                    axis.setAxisMaximum(Math.max(20000.0f, fSendTime));
 //                    axis.setAxisMinimum(Math.max(0, fSendTime - 20000));
                 }
-            }, _MVE);
+            });
             _startButton.setText("すとっぷ");
         } else {
             _expManager.Finish();
@@ -468,7 +476,7 @@ public class ExperimentFragment extends Fragment {
                     startGetMve();
                     return;
                 }
-                mveStatus.setText("測定中" + Integer.toString(count));
+                mveStatus.setText("測定まで " + Integer.toString(count));
                 handler.postDelayed(this, 1000);
             }
         };
@@ -486,8 +494,9 @@ public class ExperimentFragment extends Fragment {
                 _MVE = mve;
                 mveToggle.setText("MVE測定開始");
                 mveToggle.setEnabled(true);
-                mveStatus.setText("MVE" + Integer.toString(_MVE));
-                _startButton.setEnabled(true);
+                mveStatus.setText("MVE : " + Integer.toString(_MVE));
+                _expManager.SetMve(mve);
+                _startButton.setEnabled(_expManager.CanStart());
             }
         });
         // 表示用のカウントダウン(ほぼダミー)
@@ -507,5 +516,30 @@ public class ExperimentFragment extends Fragment {
         };
         handler.post(r);
         manager.Start();
+    }
+    HeartRateStorage hrStorage;
+
+    @OnClick(R.id.startHeartRateStorage)
+    public void heartrateToggleClick(){
+        getHeartRateToggle.setEnabled(false);
+        hrStorage = new HeartRateStorage(getContext());
+        hrStorage.SetHeartRateListener(new HeartRateStorageListener() {
+            @Override
+            public void Completed() {
+                getHeartRateToggle.setEnabled(true);
+                heartRateStatus.setText("測定完了 : " + Integer.toString(hrStorage.GetSize()));
+                _expManager.SetHeartRate(hrStorage.GetHeartRate());
+                _startButton.setEnabled(_expManager.CanStart());
+            }
+
+            @Override
+            public void GetHeartRate(Heartrate heartrate) {
+                // 測定中
+                heartRateStatus.setText("測定中 残り : " + Integer.toString(hrStorage.GetMaxSize() - hrStorage.GetSize()));
+                Log.d("experiment", Integer.toString(hrStorage.GetSize()));
+
+            }
+        });
+        hrStorage.Start();
     }
 }

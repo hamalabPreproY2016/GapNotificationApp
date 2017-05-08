@@ -28,6 +28,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="mve 取得無し"/>
+        <Button
+            android:id="@+id/startHeartRateStorage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="事前心拍間隔測定開始"/>
+        <TextView
+            android:id="@+id/heartrate_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="心拍ストックなし"/>
 
         <Button
             android:id="@+id/experiment_start_button"

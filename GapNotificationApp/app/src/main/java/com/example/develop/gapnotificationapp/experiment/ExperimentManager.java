@@ -49,7 +49,7 @@ public class ExperimentManager {
 //    private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
     private final long _average_time_milliseconds = 10 * 1000; // 10秒間の平均取得時間
     private boolean _isGetAverageEmgSession;
-    private int _MVE;
+    private int _MVE = -1;
 
     private List<Voice> _voiceData = new ArrayList<>(); // 音声データ
     private List<Face> _faceData = new ArrayList<>(); // カメラデータ
@@ -78,8 +78,9 @@ public class ExperimentManager {
     }
 
     // 実験開始
-    public void Start(ExperimentManagerListener listener, int mve){
-        _MVE = mve;
+    public void Start(ExperimentManagerListener listener){
+        // MVEと心拍のストックが無い場合はスタートしない
+        if (!CanStart()) return;
         _listener = listener;
         // 実験開始時間を保存
         _startTime = System.currentTimeMillis();
@@ -131,8 +132,7 @@ public class ExperimentManager {
 //            }
 //        });
 
-        /*テスト*/
-        createTestMoule();
+
         // 筋電のテストデータ作成を開始
         CreateTestSensor();
     }
@@ -227,11 +227,6 @@ public class ExperimentManager {
     // キャッシュデータをAPIserverに送る
     private void sendApiServer(){
 
-        // 平常値取得セッションの時はその処理を行う
-        if (_isGetAverageEmgSession){
-            SessionAverageEMG();
-            return ;
-        }
         // 全てのデータがキャッシュされていない場合は送らない
         if (!isAllCompleted()) return;
 
@@ -255,7 +250,6 @@ public class ExperimentManager {
 
 //        // 全てのキャッシュを削除
         cacheClear();
-
         // ネットワークに送信する
         _restManager.postAngry(sendJson,
                 _voiceData.get(_voiceData.size() - 1).file.toString(),
@@ -269,6 +263,7 @@ public class ExperimentManager {
                             if(_listener != null) {
                                 _listener.GetAngry(response.body());
                             }
+                            Log.d(TAG, "access : 200 OK ");
                         } else {
                             Log.d(TAG, "access error : status code " + Integer.toString(response.code()));
                         }
@@ -354,6 +349,14 @@ public class ExperimentManager {
         Log.d(TAG, "size " + Integer.toString(_heartRateData.size()));
 
     }
-
+    public void SetHeartRate( List<Heartrate> arr){
+        _heartRateData = new ArrayList<>(arr);
+    }
+    public void SetMve(int mve){
+        _MVE = mve;
+    }
+    public boolean CanStart(){
+        return _MVE != -1 && _heartRateData.size() >= 256;
+    }
 
 }
