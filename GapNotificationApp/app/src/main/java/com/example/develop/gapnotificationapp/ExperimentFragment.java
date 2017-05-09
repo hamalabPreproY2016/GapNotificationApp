@@ -45,10 +45,6 @@ import org.apache.commons.lang.ArrayUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -153,7 +149,11 @@ public class ExperimentFragment extends Fragment {
         setRRIGraph();
         setEmgGraph();
         setAngryGraph();
+        
         _startButton.setEnabled(false);
+
+        previewCSVData();
+
         return view;
     }
 
@@ -445,6 +445,10 @@ public class ExperimentFragment extends Fragment {
             return;
         }
 
+        rriGraph.setTouchEnabled(true);
+        rriGraph.setDragEnabled(true);
+        rriGraph.setScaleEnabled(true);
+
         CSVManager hCSVManager = new CSVManager(new File(csvDir, "heartrate.csv"));
         ArrayList<Heartrate> heartrates = (ArrayList<Heartrate>) hCSVManager.csvRead(new CSVManager.ParseObjectFactory() {
             @Override
@@ -453,9 +457,36 @@ public class ExperimentFragment extends Fragment {
             }
         });
 
+
         heartrates.forEach(heartrate -> {
             addPojoDataToHeartrateGraph(heartrate);
         });
+
+        CSVManager eCSVManager = new CSVManager(new File(csvDir, "heartrate.csv"));
+        ArrayList<Emg> emgs = (ArrayList<Emg>) hCSVManager.csvRead(new CSVManager.ParseObjectFactory() {
+            @Override
+            public CSVManager.CSVLineParser create() {
+                return new Emg();
+            }
+        });
+
+        emgGraph.setTouchEnabled(true);
+        emgGraph.setDragEnabled(true);
+        emgGraph.setScaleEnabled(true);
+
+        emgs.forEach(emg -> {
+            addPojoDataToEmgGraph(emg);
+        });
+
+        CSVManager rCSVManager = new CSVManager(new File(csvDir, "responseAngry.csv"));
+        ArrayList<ResponseAngry> responses = (ArrayList<ResponseAngry>) rCSVManager.csvRead(new CSVManager.ParseObjectFactory() {
+            @Override
+            public CSVManager.CSVLineParser create() {
+                return new ResponseAngry();
+            }
+        });
+
+
     }
 
     @OnClick(R.id.mve_toggle)

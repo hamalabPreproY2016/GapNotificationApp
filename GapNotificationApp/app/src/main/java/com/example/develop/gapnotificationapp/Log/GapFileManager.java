@@ -3,8 +3,6 @@ package com.example.develop.gapnotificationapp.Log;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.develop.gapnotificationapp.GapNotificationApplication;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -71,6 +69,16 @@ public class GapFileManager {
 
         File result = new File(_rootDirectory, Integer.toString(ID));
         if(!_rootDirectory.exists() || !_rootDirectory.isDirectory()) {
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    public File getLogDirectory(String ID){
+
+        File result = new File(_rootDirectory, ID);
+        if(_rootDirectory.exists() && _rootDirectory.isDirectory()) {
             return result;
         } else {
             return null;

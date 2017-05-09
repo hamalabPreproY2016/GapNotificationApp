@@ -32,6 +32,9 @@ public class LogDirectoryListAdapter extends BaseAdapter {
     public GapFileManager _mager;
     public List<File> list = new ArrayList<File>();
     public SimpleDateFormat _format;
+
+    public View.OnClickListener _viewBtnClickListener;
+
     static class ViewHolder {
         TextView date;
         TextView time;
@@ -39,12 +42,13 @@ public class LogDirectoryListAdapter extends BaseAdapter {
         ImageButton upload;
         ImageButton delete;
     }
-    public LogDirectoryListAdapter(Context context, GapFileManager manager){
+    public LogDirectoryListAdapter(Context context, GapFileManager manager, View.OnClickListener viewBtnClickListener){
         _context = context;
         _inflater = LayoutInflater.from(_context);
         layoutID = R.layout.log_directory_item;
         _mager = manager;
         _format = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        _viewBtnClickListener = viewBtnClickListener;
         reload();
     }
     public class CustomComparator implements Comparator<File> {
@@ -121,14 +125,7 @@ public class LogDirectoryListAdapter extends BaseAdapter {
                 }
             });
 
-            holder.view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.d("LogDirectoryListAdapter", "View directory" + (String)view.getTag());
-                }
-            });
-
-
+            holder.view.setOnClickListener(_viewBtnClickListener);
 
             view.setTag(holder);
         } else {

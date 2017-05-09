@@ -3,6 +3,7 @@ package com.example.develop.gapnotificationapp.experiment;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.develop.gapnotificationapp.CSVManager;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.Log.GapFileManager;
 import com.example.develop.gapnotificationapp.camera.Camera;
@@ -46,8 +47,8 @@ public class ExperimentManager {
     private ExperimentManagerListener _listener = null;
 
     // 筋電平均取得時間関係
-//    private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
-    private final long _average_time_milliseconds = 10 * 1000; // 10秒間の平均取得時間
+    private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
+//    private final long _average_time_milliseconds = 10 * 1000; // 10秒間の平均取得時間
     private boolean _isGetAverageEmgSession;
     private int _MVE = -1;
 
@@ -65,8 +66,6 @@ public class ExperimentManager {
 
     // 音声
     private RealTimeVoiceSlicer _voiceSilcer;
-
-
 
     private GapFileManager _fileManager;
 
@@ -138,10 +137,24 @@ public class ExperimentManager {
     }
 
     // 実験終了
-    public void Finish(){
+    public void Finish() {
         // 保存する
         // リスナーとか解除する
         _voiceSilcer.Finish();
+
+        File csvDir = CSVManager.createCSVDirectory(_rootDirectory);
+
+        CSVManager faceCSVManager = new CSVManager(new File(csvDir, "face.csv"));
+        faceCSVManager.csvWrite(_faceData);
+
+        CSVManager heartrateCSVManager = new CSVManager(new File(csvDir, "heartrate.csv"));
+        heartrateCSVManager.csvWrite(_heartRateData);
+
+        CSVManager emgCSVManager = new CSVManager(new File(csvDir, "emg.csv"));
+        emgCSVManager.csvWrite(_emgData);
+
+        CSVManager responseCSVManager = new CSVManager(new File(csvDir, "responseAngry.csv"));
+        responseCSVManager.csvWrite(_angryData);
     }
 
     // セッションを追加
@@ -328,7 +341,17 @@ public class ExperimentManager {
                 value = (short)(r.nextInt(300) + 1);
                 setHeartRateCache(value);
 
+                ResponseAngry res = new ResponseAngry();
 
+                res.angryBody = r.nextBoolean();
+                res.angryLook = r.nextBoolean();
+                res.angryGap = r.nextBoolean();
+
+                Log.d("bool", res.angryBody +","+ res.angryLook +","+ res.angryGap);
+
+                res.sendTime = Long.toString(getRemmaningTime());
+
+                _listener.GetAngry(res);
             }
         }, 0, 1000);
     }

@@ -5,6 +5,7 @@ import com.example.develop.gapnotificationapp.CSVManager;
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Emg;
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Face;
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Voice;
+import com.example.develop.gapnotificationapp.rest.Pojo.Angry.response.Heartrate;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -40,10 +41,10 @@ public class ResponseAngry extends PojoObject {
     public String[] parseCSVLine(CSVManager manager) {
         return new String[]{
                 sendTime,
-                heartrate.toString(),
-                emg.toString(),
-                voice.toString(),
-                face.toString(),
+                heartrate.result.toString(),
+                emg.result.toString(),
+                voice.result.toString(),
+                face.result.toString(),
                 angryBody.toString(),
                 angryLook.toString(),
                 angryGap.toString()
@@ -52,6 +53,19 @@ public class ResponseAngry extends PojoObject {
 
     @Override
     public void setPropertyFromCSVLine(CSVManager manager, String[] strings) {
+        heartrate = new Heartrate();
+        emg = new Emg();
+        voice = new Voice();
+        face = new Face();
+
         sendTime = strings[0];
+        heartrate.result = Boolean.parseBoolean(strings[1]);
+        emg.result = Boolean.parseBoolean(strings[2]);
+        voice.result = Float.parseFloat(strings[3]);
+        face.result = Boolean.parseBoolean(strings[4]);
+
+        angryBody = Boolean.parseBoolean(strings[5]);
+        angryLook = Boolean.parseBoolean(strings[6]);
+        angryGap = Boolean.parseBoolean(strings[7]);
     }
 }

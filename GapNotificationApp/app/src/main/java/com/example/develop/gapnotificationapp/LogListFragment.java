@@ -1,9 +1,10 @@
 package com.example.develop.gapnotificationapp;
 
 
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +16,8 @@ import android.widget.ListView;
 
 import com.example.develop.gapnotificationapp.Log.GapFileManager;
 import com.example.develop.gapnotificationapp.Log.LogDirectoryListAdapter;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,7 +50,25 @@ public class LogListFragment extends Fragment {
         // Inflate the layout for this fragment
         gfm = new GapFileManager(getActivity());
         gfm.getNewLogDirectory();
-        adapter = new LogDirectoryListAdapter(getActivity(), gfm);
+        adapter = new LogDirectoryListAdapter(getActivity(), gfm, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("確認")
+                        .setMessage("この実験記録を閲覧しますか？")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                GapFileManager manager = new GapFileManager(getContext());
+                                segueExperimentFragment(new File(manager.getLogDirectory((String)view.getTag()), "csv"));
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+                AlertDialog dialog = builder.create();
+            }
+        });
         list.setAdapter(adapter);
         return view;
     }
@@ -82,4 +103,12 @@ public class LogListFragment extends Fragment {
         return true;
     }
 
+    private void segueExperimentFragment(File csvDir) {
+        FragmentTransaction fragmentTransaction =  getFragmentManager().beginTransaction();
+
+        ExperimentFragment newFragment = new ExperimentFragment();
+        newFragment.csvDir = csvDir;
+
+        fragmentTransaction.replace(R.id.container, newFragment).commit();
+    }
 }
