@@ -41,10 +41,10 @@ public class ResponseAngry extends PojoObject {
     public String[] parseCSVLine(CSVManager manager) {
         return new String[]{
                 sendTime,
-                heartrate.result.toString(),
-                emg.result.toString(),
-                voice.result.toString(),
-                face.result.toString(),
+                heartrate.angryValue.toString(),
+                emg.angryValue.toString(),
+                voice.angryValue.toString(),
+                face.angryValue.toString(),
                 angryBody.toString(),
                 angryLook.toString(),
                 angryGap.toString()
@@ -59,10 +59,10 @@ public class ResponseAngry extends PojoObject {
         face = new Face();
 
         sendTime = strings[0];
-        heartrate.result = Boolean.parseBoolean(strings[1]);
-        emg.result = Boolean.parseBoolean(strings[2]);
-        voice.result = Float.parseFloat(strings[3]);
-        face.result = Boolean.parseBoolean(strings[4]);
+        heartrate.angryValue = Double.parseDouble(strings[1]);
+        emg.angryValue = Double.parseDouble(strings[2]);
+        voice.angryValue = Double.parseDouble(strings[3]);
+        face.angryValue = Double.parseDouble(strings[4]);
 
         angryBody = Boolean.parseBoolean(strings[5]);
         angryLook = Boolean.parseBoolean(strings[6]);
