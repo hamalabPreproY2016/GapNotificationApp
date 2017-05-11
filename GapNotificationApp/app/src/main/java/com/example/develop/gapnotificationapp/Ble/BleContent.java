@@ -31,7 +31,7 @@ public class BleContent {
     private PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
     private Observable<RxBleConnection> connectionObservable;
 
-    private NotificationListener _listener;
+    protected NotificationListener _listener;
 
     // コンストラクタ
     public BleContent(Context context, String mac_address, UUID WriteUUID, UUID NotifiUUID) {
@@ -48,6 +48,9 @@ public class BleContent {
         _listener = null;
 
         Log.d(TAG, "create BleContent");
+    }
+    public BleContent(){
+
     }
 
     public BleContent(Context context, String mac_address){

@@ -18,32 +18,56 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp" />
         </FrameLayout>
-        <Button
-            android:id="@+id/mve_toggle"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="MVE取得を開始"/>
-        <TextView
-            android:id="@+id/mve_status_notification"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="mve 取得無し"/>
-        <Button
-            android:id="@+id/startHeartRateStorage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="事前心拍間隔測定開始"/>
-        <TextView
-            android:id="@+id/heartrate_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="心拍ストックなし"/>
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <Button
+                    android:id="@+id/mve_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="MVE取得を開始"/>
+                <TextView
+                    android:id="@+id/mve_status_notification"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="mve 取得無し"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <Button
+                    android:id="@+id/startHeartRateStorage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="事前心拍間隔測定開始"/>
+                <TextView
+                    android:id="@+id/heartrate_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="心拍ストックなし"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+
 
         <Button
             android:id="@+id/experiment_start_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="じっけん、すたーと！" />
+        <Button
+            android:id="@+id/insert_section"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="セクション" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -58,7 +82,6 @@
                 <view
                     android:id="@+id/experiment_rriGraph"
                     class="com.github.mikephil.charting.charts.LineChart"
-                    id="@+id/view"
                     layout_width="match_parent"
                     android:layout_width="match_parent"
                     android:layout_height="300dp" />
@@ -66,7 +89,6 @@
                 <view
                     android:id="@+id/experiment_emgGraph"
                     class="com.github.mikephil.charting.charts.LineChart"
-                    id="@+id/view"
                     layout_width="match_parent"
                     android:layout_width="match_parent"
                     android:layout_height="300dp" />
@@ -74,7 +96,6 @@
                 <view
                     android:id="@+id/experiment_angryGraph"
                     class="com.github.mikephil.charting.charts.HorizontalBarChart"
-                    id="@+id/view"
                     layout_width="match_parent"
                     android:layout_width="match_parent"
                     android:layout_height="300dp" />

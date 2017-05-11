@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.develop.gapnotificationapp.Ble.TestBleContent;
 import com.example.develop.gapnotificationapp.camera.Camera;
 import com.example.develop.gapnotificationapp.experiment.ExperimentManager;
 import com.example.develop.gapnotificationapp.experiment.ExperimentManagerListener;
@@ -54,6 +55,7 @@ import butterknife.OnClick;
  * A simple {@link Fragment} subclass.
  */
 public class ExperimentFragment extends Fragment {
+    private final boolean testFlag = true;
 
     @BindView(R.id.startHeartRateStorage)
     public Button getHeartRateToggle;
@@ -101,7 +103,16 @@ public class ExperimentFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_experiment, container, false);
         ButterKnife.bind(this, view);
-
+        // テスト用のBLEContentモジュールを使用する
+        if (testFlag){
+            TestBleContent emg = new TestBleContent();
+            TestBleContent heartRate = new TestBleContent();
+            GapNotificationApplication.getBleContentManager(getActivity()).setEMG(emg);
+            GapNotificationApplication.getBleContentManager(getActivity()).setHeartRate(heartRate);
+        }
+        // Bluetooth通信を開始
+        GapNotificationApplication.getBleContentManager(getActivity()).getEMG().Connect();
+        GapNotificationApplication.getBleContentManager(getActivity()).getHeartRate().Connect();
         _expManager = new ExperimentManager(getActivity());
 
         camera = new Camera(getContext(), _textureView);
@@ -554,23 +565,36 @@ public class ExperimentFragment extends Fragment {
     public void heartrateToggleClick(){
         getHeartRateToggle.setEnabled(false);
         hrStorage = new HeartRateStorage(getContext());
+
         hrStorage.SetHeartRateListener(new HeartRateStorageListener() {
             @Override
             public void Completed() {
-                getHeartRateToggle.setEnabled(true);
-                heartRateStatus.setText("測定完了 : " + Integer.toString(hrStorage.GetSize()));
-                _expManager.SetHeartRate(hrStorage.GetHeartRate());
-                _startButton.setEnabled(_expManager.CanStart());
-            }
+                handler.post(new Runnable() {
+                    public void run() {
+                        getHeartRateToggle.setEnabled(true);
+                        heartRateStatus.setText("測定完了 : " + Integer.toString(hrStorage.GetSize()));
+                        _expManager.SetHeartRate(hrStorage.GetHeartRate());
+                        _startButton.setEnabled(_expManager.CanStart());                            }
+                });
 
+            }
+            Handler handler = new Handler();
             @Override
             public void GetHeartRate(Heartrate heartrate) {
-                // 測定中
-                heartRateStatus.setText("測定中 残り : " + Integer.toString(hrStorage.GetMaxSize() - hrStorage.GetSize()));
+                        handler.post(new Runnable() {
+                            public void run() {
+                                heartRateStatus.setText("測定中 残り : " + Integer.toString(hrStorage.GetMaxSize() - hrStorage.GetSize()));
+                            }
+                        });
                 Log.d("experiment", Integer.toString(hrStorage.GetSize()));
 
             }
         });
         hrStorage.Start();
+    }
+
+    @OnClick(R.id.insert_section)
+    public void insertSection(){
+        _expManager.Session();
     }
 }

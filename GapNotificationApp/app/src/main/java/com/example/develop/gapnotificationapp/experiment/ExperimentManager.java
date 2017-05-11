@@ -3,6 +3,7 @@ package com.example.develop.gapnotificationapp.experiment;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.develop.gapnotificationapp.Ble.NotificationListener;
 import com.example.develop.gapnotificationapp.CSVManager;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.Log.GapFileManager;
@@ -17,6 +18,7 @@ import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.Reque
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseAverage;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseMVE;
 import com.example.develop.gapnotificationapp.rest.RestManager;
+import com.example.develop.gapnotificationapp.util.BinaryInteger;
 import com.example.develop.gapnotificationapp.voice.RealTimeVoiceSlicer;
 import com.example.develop.gapnotificationapp.voice.VoiceSliceListener;
 
@@ -49,7 +51,6 @@ public class ExperimentManager {
     // 筋電平均取得時間関係
     private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
 //    private final long _average_time_milliseconds = 10 * 1000; // 10秒間の平均取得時間
-    private boolean _isGetAverageEmgSession;
     private int _MVE = -1;
 
     private List<Voice> _voiceData = new ArrayList<>(); // 音声データ
@@ -72,10 +73,12 @@ public class ExperimentManager {
     public ExperimentManager(Context context){
         _context = context;
         _fileManager = new GapFileManager(_context);
-        _isGetAverageEmgSession = true;
         _restManager = new RestManager();
     }
+    // 心拍ストック開始
+    public void StartStockHeart(){
 
+    }
     // 実験開始
     public void Start(ExperimentManagerListener listener){
         // MVEと心拍のストックが無い場合はスタートしない
@@ -114,26 +117,26 @@ public class ExperimentManager {
 
 //
 //        // 心拍リスナーをセット
-//        GapNotificationApplication.getBleContentManager(_context).getHeartRate().setNotificationListener(new NotificationListener() {
-//            @Override
-//            public void getNotification(byte[] bytes) {
-//                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-//                setHeartRateCache(data);
-//            }
-//        });
+        GapNotificationApplication.getBleContentManager(_context).getHeartRate().setNotificationListener(new NotificationListener() {
+            @Override
+            public void getNotification(byte[] bytes) {
+                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+                setHeartRateCache(data);
+            }
+        });
 //
 //        // 筋電リスナーをセット
-//        GapNotificationApplication.getBleContentManager(_context).getEMG().setNotificationListener(new NotificationListener() {
-//            @Override
-//            public void getNotification(byte[] bytes) {
-//                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-//                setEmgCache(data);
-//            }
-//        });
+        GapNotificationApplication.getBleContentManager(_context).getEMG().setNotificationListener(new NotificationListener() {
+            @Override
+            public void getNotification(byte[] bytes) {
+                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+                setEmgCache(data);
+            }
+        });
 
 
         // 筋電のテストデータ作成を開始
-        CreateTestSensor();
+//        CreateTestSensor();
     }
 
     // 実験終了
@@ -306,7 +309,7 @@ public class ExperimentManager {
                 public void onResponse(Call<ResponseMVE> call, Response<ResponseMVE> response) {
                     if (response.code() == 200) {
                         Log.d(TAG, "average mve :" + Double.toString(response.body().mve));
-                        _isGetAverageEmgSession = false;
+//                        _isGetAverageEmgSession = false;
                         _MVE = response.body().mve;
                         if(_listener != null) {
                             _listener.GetEmgAverage(_MVE);

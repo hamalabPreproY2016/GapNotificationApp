@@ -1,10 +1,13 @@
 package com.example.develop.gapnotificationapp.experiment;
 
 import android.content.Context;
+import android.os.Handler;
 
+import com.example.develop.gapnotificationapp.Ble.NotificationListener;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.model.Emg;
 import com.example.develop.gapnotificationapp.model.Heartrate;
+import com.example.develop.gapnotificationapp.util.BinaryInteger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,16 +33,17 @@ public class HeartRateStorage {
         _heartRateData = new ArrayList<>();
         // 開始時刻を保持
         _startTime = System.currentTimeMillis();
-        // テストデータ
-        createTestMoule();
+//        // テストデータ
+//        createTestMoule();
         // 心拍リスナーをセット
-//        GapNotificationApplication.getBleContentManager(_context).getHeartRate().setNotificationListener(new NotificationListener() {
-//            @Override
-//            public void getNotification(byte[] bytes) {
-//                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-//                setHeartRateCache(data);
-//            }
-//        });
+        GapNotificationApplication.getBleContentManager(_context).getHeartRate().setNotificationListener(new NotificationListener() {
+            @Override
+            public void getNotification(byte[] bytes) {
+                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+                SetHeartRate(data);
+
+            }
+        });
     }
     public void SetHeartRateListener(HeartRateStorageListener listener){
         _listener = listener;

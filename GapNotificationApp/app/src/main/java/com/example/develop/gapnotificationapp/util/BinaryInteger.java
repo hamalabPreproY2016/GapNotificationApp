@@ -18,4 +18,10 @@ public class BinaryInteger {
             throw new IllegalArgumentException("Only 1 or 2 bytes");
         }
     }
+    public static byte[] ShortToByte(short data){
+        byte[] bytes = new byte[2];
+        bytes[0] = (byte)(data & 0xff);
+        bytes[1] = (byte)((data >> 8) & 0xff);
+        return bytes;
+    }
 }
