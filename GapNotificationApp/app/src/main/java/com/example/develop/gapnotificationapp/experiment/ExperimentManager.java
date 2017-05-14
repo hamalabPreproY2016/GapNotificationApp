@@ -292,54 +292,7 @@ public class ExperimentManager {
     }
     // 実験開始からの経過時間を取得する
     private long getRemmaningTime(){return System.currentTimeMillis() - _startTime;}
-
-    Timer timer = null;
-    private void CreateTestSensor(){
-        timer = new Timer(true);
-        // 1秒ごとに筋電のテストデータを作成
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                // 筋電の値を乱数で作成
-                Random r = new Random();
-                short value = (short)(r.nextInt(300) + 1);
-                setEmgCache(value);
-
-                // 心拍の値を乱数で作成
-                value = (short)(r.nextInt(300) + 1);
-                setHeartRateCache(value);
-
-                ResponseAngry res = new ResponseAngry();
-
-                res.angryBody = r.nextBoolean();
-                res.angryLook = r.nextBoolean();
-                res.angryGap = r.nextBoolean();
-
-                Log.d("bool", res.angryBody +","+ res.angryLook +","+ res.angryGap);
-
-                res.sendTime = Long.toString(getRemmaningTime());
-
-                _listener.GetAngry(res);
-            }
-        }, 0, 1000);
-    }
-
-    private void createTestMoule(){
-        int COUNT = 300;
-        for(int i = 0; i < COUNT ; i ++){
-            // 筋電の値を乱数で作成
-            Random r = new Random();
-            short value = (short)(r.nextInt(300) + 1);
-            setEmgCache(value);
-
-            // 心拍の値を乱数で作成
-            value = (short)(r.nextInt(300) + 1);
-            setHeartRateCache(value);
-        }
-        Log.d(TAG, "create data : " + Integer.toString(COUNT));
-        Log.d(TAG, "size " + Integer.toString(_heartRateData.size()));
-
-    }
+    
     public void SetHeartRate( List<Heartrate> arr){
         _heartRateData = new ArrayList<>(arr);
     }
