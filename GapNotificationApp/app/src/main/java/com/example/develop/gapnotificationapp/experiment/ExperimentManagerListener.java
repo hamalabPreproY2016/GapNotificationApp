@@ -17,4 +17,5 @@ public abstract class ExperimentManagerListener {
     public abstract void GetFace(Face data); // 写真が取得できた時に呼び出される
     public abstract void GetEmgAverage(int average); // 筋電の平均値がAPIサーバから取得できた時に呼び出される
     public abstract void GetAngry(ResponseAngry response); // 怒り判定の結果がAPIサーバから取得できた時に呼び出される
+    public abstract void GetEnoughStockHeartRate(); // 十分な心拍値が取得できたら呼び出される
 }

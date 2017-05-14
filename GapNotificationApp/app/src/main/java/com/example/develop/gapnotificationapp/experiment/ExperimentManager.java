@@ -12,6 +12,7 @@ import com.example.develop.gapnotificationapp.model.Emg;
 import com.example.develop.gapnotificationapp.model.Face;
 import com.example.develop.gapnotificationapp.model.Heartrate;
 import com.example.develop.gapnotificationapp.model.ResponseAngry;
+import com.example.develop.gapnotificationapp.model.Session;
 import com.example.develop.gapnotificationapp.model.Voice;
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.RequestPrepareEMG;
@@ -49,6 +50,7 @@ public class ExperimentManager {
     private ExperimentManagerListener _listener = null;
 
     private int _MVE = -1;
+    public static final int STOCK_HEARTRATE_SIZE = 256;
 
     private List<Voice> _voiceData = new ArrayList<>(); // 音声データ
     private List<Face> _faceData = new ArrayList<>(); // カメラデータ
@@ -59,7 +61,7 @@ public class ExperimentManager {
     private List<ResponseAngry> _angryData = new ArrayList<>();
 
     // 時間関係
-    private List<Long> _sessionTime = new ArrayList<Long>(); // セッションタイム
+    private List<Session> _sessionTime = new ArrayList<Session>(); // セッションタイム
     private long _startTime; // 実験開始時間
 
     // 音声
@@ -71,18 +73,50 @@ public class ExperimentManager {
         _context = context;
         _fileManager = new GapFileManager(_context);
         _restManager = new RestManager();
+        _startTime = -1;
     }
     // 心拍ストック開始
     public void StartStockHeart(){
+       // 心拍リスナーをセット
+        GapNotificationApplication.getBleContentManager(_context).getHeartRate().setNotificationListener(new NotificationListener() {
+            @Override
+            public void getNotification(byte[] bytes) {
+                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+                setHeartRateCache(data);
+                // 十分ストックが貯まったら通知する
+                if (_heartRateData.size() > STOCK_HEARTRATE_SIZE && _listener != null){
+                    _listener.GetEnoughStockHeartRate();
+                }
+            }
+        });
+        // 実験開始時間をセット
+        _startTime = System.currentTimeMillis();
 
+        // テストフラグが立っていれば、心拍ストックを乱数で作成
+        if (GapNotificationApplication.STOCK_HEART_TEST){
+            Random r = new Random();
+            for (int i = 0; i < STOCK_HEARTRATE_SIZE; i ++){
+                short value = (short)(r.nextInt(300) + 1);
+                setHeartRateCache(value);
+            }
+        }
+    }
+    // 現在の心拍値数
+    public int GetHeartRateSize(){
+        return  _heartRateData.size();
+    }
+    // リスナーをセット
+    public void SetListener(ExperimentManagerListener listener){
+        _listener = listener;
     }
     // 実験開始
-    public void Start(ExperimentManagerListener listener){
+    public void Start(){
         // MVEと心拍のストックが無い場合はスタートしない
         if (!CanStart()) return;
-        _listener = listener;
-        // 実験開始時間を保存
-        _startTime = System.currentTimeMillis();
+
+        // 実験が始まった時間を記録
+        Session();
+
         // 実験ディレクトリを取得する
         _rootDirectory = _fileManager.getNewLogDirectory();
         Log.d(TAG, _rootDirectory.toString());
@@ -121,7 +155,7 @@ public class ExperimentManager {
                 setHeartRateCache(data);
             }
         });
-//
+
 //        // 筋電リスナーをセット
         GapNotificationApplication.getBleContentManager(_context).getEMG().setNotificationListener(new NotificationListener() {
             @Override
@@ -131,9 +165,6 @@ public class ExperimentManager {
             }
         });
 
-
-        // 筋電のテストデータ作成を開始
-//        CreateTestSensor();
     }
 
     // 実験終了
@@ -155,11 +186,14 @@ public class ExperimentManager {
 
         CSVManager responseCSVManager = new CSVManager(new File(csvDir, "responseAngry.csv"));
         responseCSVManager.csvWrite(_angryData);
+
+        CSVManager sessionCSVManager = new CSVManager(new File(csvDir, "session.csv"));
+        sessionCSVManager.csvWrite(_sessionTime);
     }
 
     // セッションを追加
     public void Session(){
-        _sessionTime.add(getRemmaningTime());
+        _sessionTime.add(new Session(getRemmaningTime()));
     }
 
     // 音声データを一時的に記憶
@@ -204,6 +238,7 @@ public class ExperimentManager {
         if (_listener != null) {
             _listener.GetHeartRate(heart);
         }
+        Log.d(TAG, "get heart rate : " + heart.value.toString() + " time : " + heart.time);
         sendApiServer();
     }
 
@@ -293,53 +328,6 @@ public class ExperimentManager {
     // 実験開始からの経過時間を取得する
     private long getRemmaningTime(){return System.currentTimeMillis() - _startTime;}
 
-    Timer timer = null;
-    private void CreateTestSensor(){
-        timer = new Timer(true);
-        // 1秒ごとに筋電のテストデータを作成
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                // 筋電の値を乱数で作成
-                Random r = new Random();
-                short value = (short)(r.nextInt(300) + 1);
-                setEmgCache(value);
-
-                // 心拍の値を乱数で作成
-                value = (short)(r.nextInt(300) + 1);
-                setHeartRateCache(value);
-
-                ResponseAngry res = new ResponseAngry();
-
-                res.angryBody = r.nextBoolean();
-                res.angryLook = r.nextBoolean();
-                res.angryGap = r.nextBoolean();
-
-                Log.d("bool", res.angryBody +","+ res.angryLook +","+ res.angryGap);
-
-                res.sendTime = Long.toString(getRemmaningTime());
-
-                _listener.GetAngry(res);
-            }
-        }, 0, 1000);
-    }
-
-    private void createTestMoule(){
-        int COUNT = 300;
-        for(int i = 0; i < COUNT ; i ++){
-            // 筋電の値を乱数で作成
-            Random r = new Random();
-            short value = (short)(r.nextInt(300) + 1);
-            setEmgCache(value);
-
-            // 心拍の値を乱数で作成
-            value = (short)(r.nextInt(300) + 1);
-            setHeartRateCache(value);
-        }
-        Log.d(TAG, "create data : " + Integer.toString(COUNT));
-        Log.d(TAG, "size " + Integer.toString(_heartRateData.size()));
-
-    }
     public void SetHeartRate( List<Heartrate> arr){
         _heartRateData = new ArrayList<>(arr);
     }
@@ -347,7 +335,7 @@ public class ExperimentManager {
         _MVE = mve;
     }
     public boolean CanStart(){
-        return _MVE != -1 && _heartRateData.size() >= 256;
+        return _MVE != -1 && _heartRateData.size() >= STOCK_HEARTRATE_SIZE;
     }
 
 }

@@ -20,8 +20,6 @@ import com.example.develop.gapnotificationapp.experiment.ExperimentManager;
 import com.example.develop.gapnotificationapp.experiment.ExperimentManagerListener;
 import com.example.develop.gapnotificationapp.experiment.GetMveManager;
 import com.example.develop.gapnotificationapp.experiment.GetMveManagerListener;
-import com.example.develop.gapnotificationapp.experiment.HeartRateStorage;
-import com.example.develop.gapnotificationapp.experiment.HeartRateStorageListener;
 import com.example.develop.gapnotificationapp.model.Emg;
 import com.example.develop.gapnotificationapp.model.Face;
 import com.example.develop.gapnotificationapp.model.Heartrate;
@@ -55,7 +53,6 @@ import butterknife.OnClick;
  * A simple {@link Fragment} subclass.
  */
 public class ExperimentFragment extends Fragment {
-    private final boolean testFlag = true;
 
     @BindView(R.id.startHeartRateStorage)
     public Button getHeartRateToggle;
@@ -104,7 +101,7 @@ public class ExperimentFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_experiment, container, false);
         ButterKnife.bind(this, view);
         // テスト用のBLEContentモジュールを使用する
-        if (testFlag){
+        if (GapNotificationApplication.BLE_TEST){
             TestBleContent emg = new TestBleContent();
             TestBleContent heartRate = new TestBleContent();
             GapNotificationApplication.getBleContentManager(getActivity()).setEMG(emg);
@@ -175,7 +172,7 @@ public class ExperimentFragment extends Fragment {
             if (_MVE == -1){
                 return;
             }
-            _expManager.Start(new ExperimentManagerListener() {
+            _expManager.SetListener(new ExperimentManagerListener() {
                 @Override
                 public void GetHeartRate(Heartrate heartrate) {
                     addPojoDataToHeartrateGraph(heartrate);
@@ -264,7 +261,11 @@ public class ExperimentFragment extends Fragment {
 //                    axis.setAxisMaximum(Math.max(20000.0f, fSendTime));
 //                    axis.setAxisMinimum(Math.max(0, fSendTime - 20000));
                 }
+                @Override
+                public void GetEnoughStockHeartRate() {
+                }
             });
+            _expManager.Start();
             _startButton.setText("すとっぷ");
         } else {
             _expManager.Finish();
@@ -559,38 +560,59 @@ public class ExperimentFragment extends Fragment {
         handler.post(r);
         manager.Start();
     }
-    HeartRateStorage hrStorage;
-
     @OnClick(R.id.startHeartRateStorage)
     public void heartrateToggleClick(){
         getHeartRateToggle.setEnabled(false);
-        hrStorage = new HeartRateStorage(getContext());
-
-        hrStorage.SetHeartRateListener(new HeartRateStorageListener() {
+        Handler handler = new Handler();
+        _expManager.SetListener(new ExperimentManagerListener() {
             @Override
-            public void Completed() {
+            public void GetHeartRate(Heartrate data) {
+                addPojoDataToHeartrateGraph(data);
+                handler.post(new Runnable() {
+                    public void run() {
+                        heartRateStatus.setText("測定中 残り : " + Integer.toString(ExperimentManager.STOCK_HEARTRATE_SIZE - _expManager.GetHeartRateSize()));
+                    }
+                });
+                Log.d("experiment", Integer.toString(_expManager.GetHeartRateSize()));
+            }
+
+            @Override
+            public void GetEmg(Emg data) {
+
+            }
+
+            @Override
+            public void GetVoice(Voice data) {
+
+            }
+
+            @Override
+            public void GetFace(Face data) {
+
+            }
+
+            @Override
+            public void GetEmgAverage(int average) {
+
+            }
+
+            @Override
+            public void GetAngry(ResponseAngry response) {
+
+            }
+
+            @Override
+            public void GetEnoughStockHeartRate() {
                 handler.post(new Runnable() {
                     public void run() {
                         getHeartRateToggle.setEnabled(true);
-                        heartRateStatus.setText("測定完了 : " + Integer.toString(hrStorage.GetSize()));
-                        _expManager.SetHeartRate(hrStorage.GetHeartRate());
-                        _startButton.setEnabled(_expManager.CanStart());                            }
+                        heartRateStatus.setText("測定完了");
+                        _startButton.setEnabled(_expManager.CanStart());
+                    }
                 });
-
-            }
-            Handler handler = new Handler();
-            @Override
-            public void GetHeartRate(Heartrate heartrate) {
-                        handler.post(new Runnable() {
-                            public void run() {
-                                heartRateStatus.setText("測定中 残り : " + Integer.toString(hrStorage.GetMaxSize() - hrStorage.GetSize()));
-                            }
-                        });
-                Log.d("experiment", Integer.toString(hrStorage.GetSize()));
-
             }
         });
-        hrStorage.Start();
+        _expManager.StartStockHeart();
     }
 
     @OnClick(R.id.insert_section)

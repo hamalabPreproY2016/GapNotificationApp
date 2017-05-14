@@ -1,5 +1,9 @@
 package com.example.develop.gapnotificationapp.util;
 
+import android.util.Log;
+
+import static android.R.attr.src;
+
 /**
  * Created by ragro on 2017/04/02.
  */
@@ -18,10 +22,10 @@ public class BinaryInteger {
             throw new IllegalArgumentException("Only 1 or 2 bytes");
         }
     }
-    public static byte[] ShortToByte(short data){
+    public static byte[] ShortToByte(Short data){
         byte[] bytes = new byte[2];
-        bytes[0] = (byte)(data & 0xff);
-        bytes[1] = (byte)((data >> 8) & 0xff);
+        bytes[0] = (byte)((data >> 8) & 0xff);
+        bytes[1] = (byte)(data & 0xff);
         return bytes;
     }
 }
