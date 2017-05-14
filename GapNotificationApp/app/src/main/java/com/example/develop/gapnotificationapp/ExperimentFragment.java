@@ -175,7 +175,7 @@ public class ExperimentFragment extends Fragment {
             if (_MVE == -1){
                 return;
             }
-            _expManager.Start(new ExperimentManagerListener() {
+            _expManager.SetListener(new ExperimentManagerListener() {
                 @Override
                 public void GetHeartRate(Heartrate heartrate) {
                     addPojoDataToHeartrateGraph(heartrate);
@@ -265,6 +265,7 @@ public class ExperimentFragment extends Fragment {
 //                    axis.setAxisMinimum(Math.max(0, fSendTime - 20000));
                 }
             });
+            _expManager.Start();
             _startButton.setText("すとっぷ");
         } else {
             _expManager.Finish();

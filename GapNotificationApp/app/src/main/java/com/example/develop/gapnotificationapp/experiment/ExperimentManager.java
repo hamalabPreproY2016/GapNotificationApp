@@ -76,11 +76,15 @@ public class ExperimentManager {
     public void StartStockHeart(){
 
     }
+    // リスナーをセット
+    public void SetListener(ExperimentManagerListener listener){
+        _listener = listener;
+    }
     // 実験開始
-    public void Start(ExperimentManagerListener listener){
+    public void Start(){
         // MVEと心拍のストックが無い場合はスタートしない
         if (!CanStart()) return;
-        _listener = listener;
+
         // 実験開始時間を保存
         _startTime = System.currentTimeMillis();
         // 実験ディレクトリを取得する
@@ -292,7 +296,7 @@ public class ExperimentManager {
     }
     // 実験開始からの経過時間を取得する
     private long getRemmaningTime(){return System.currentTimeMillis() - _startTime;}
-    
+
     public void SetHeartRate( List<Heartrate> arr){
         _heartRateData = new ArrayList<>(arr);
     }
