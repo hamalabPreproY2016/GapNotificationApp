@@ -91,6 +91,15 @@ public class ExperimentManager {
         });
         // 実験開始時間をセット
         _startTime = System.currentTimeMillis();
+
+        // テストフラグが立っていれば、心拍ストックを乱数で作成
+        if (GapNotificationApplication.STOCK_HEART_TEST){
+            Random r = new Random();
+            for (int i = 0; i < STOCK_HEARTRATE_SIZE; i ++){
+                short value = (short)(r.nextInt(300) + 1);
+                setHeartRateCache(value);
+            }
+        }
     }
     // 現在の心拍値数
     public int GetHeartRateSize(){

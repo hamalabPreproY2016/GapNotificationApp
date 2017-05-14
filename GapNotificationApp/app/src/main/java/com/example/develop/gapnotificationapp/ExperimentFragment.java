@@ -53,7 +53,6 @@ import butterknife.OnClick;
  * A simple {@link Fragment} subclass.
  */
 public class ExperimentFragment extends Fragment {
-    private final boolean testFlag = true;
 
     @BindView(R.id.startHeartRateStorage)
     public Button getHeartRateToggle;
@@ -102,7 +101,7 @@ public class ExperimentFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_experiment, container, false);
         ButterKnife.bind(this, view);
         // テスト用のBLEContentモジュールを使用する
-        if (testFlag){
+        if (GapNotificationApplication.BLE_TEST){
             TestBleContent emg = new TestBleContent();
             TestBleContent heartRate = new TestBleContent();
             GapNotificationApplication.getBleContentManager(getActivity()).setEMG(emg);
