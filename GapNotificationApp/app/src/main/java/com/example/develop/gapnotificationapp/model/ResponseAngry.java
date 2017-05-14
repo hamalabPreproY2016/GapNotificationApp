@@ -43,8 +43,11 @@ public class ResponseAngry extends PojoObject {
                 sendTime,
                 heartrate.angryValue.toString(),
                 emg.angryValue.toString(),
+                emg.isMove.toString(),
                 voice.angryValue.toString(),
+                voice.enabled.toString(),
                 face.angryValue.toString(),
+                face.isFace.toString(),
                 angryBody.toString(),
                 angryLook.toString(),
                 angryGap.toString()
