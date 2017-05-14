@@ -12,6 +12,7 @@ import com.example.develop.gapnotificationapp.model.Emg;
 import com.example.develop.gapnotificationapp.model.Face;
 import com.example.develop.gapnotificationapp.model.Heartrate;
 import com.example.develop.gapnotificationapp.model.ResponseAngry;
+import com.example.develop.gapnotificationapp.model.Session;
 import com.example.develop.gapnotificationapp.model.Voice;
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.RequestPrepareEMG;
@@ -60,7 +61,7 @@ public class ExperimentManager {
     private List<ResponseAngry> _angryData = new ArrayList<>();
 
     // 時間関係
-    private List<Long> _sessionTime = new ArrayList<Long>(); // セッションタイム
+    private List<Session> _sessionTime = new ArrayList<Session>(); // セッションタイム
     private long _startTime; // 実験開始時間
 
     // 音声
@@ -103,6 +104,9 @@ public class ExperimentManager {
     public void Start(){
         // MVEと心拍のストックが無い場合はスタートしない
         if (!CanStart()) return;
+
+        // 実験が始まった時間を記録
+        Session();
 
         // 実験ディレクトリを取得する
         _rootDirectory = _fileManager.getNewLogDirectory();
@@ -173,11 +177,14 @@ public class ExperimentManager {
 
         CSVManager responseCSVManager = new CSVManager(new File(csvDir, "responseAngry.csv"));
         responseCSVManager.csvWrite(_angryData);
+
+        CSVManager sessionCSVManager = new CSVManager(new File(csvDir, "session.csv"));
+        sessionCSVManager.csvWrite(_sessionTime);
     }
 
     // セッションを追加
     public void Session(){
-        _sessionTime.add(getRemmaningTime());
+        _sessionTime.add(new Session(getRemmaningTime()));
     }
 
     // 音声データを一時的に記憶
