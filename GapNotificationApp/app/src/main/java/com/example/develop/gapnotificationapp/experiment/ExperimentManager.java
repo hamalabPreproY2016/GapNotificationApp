@@ -49,6 +49,7 @@ public class ExperimentManager {
     private ExperimentManagerListener _listener = null;
 
     private int _MVE = -1;
+    public static final int STOCK_HEARTRATE_SIZE = 256;
 
     private List<Voice> _voiceData = new ArrayList<>(); // 音声データ
     private List<Face> _faceData = new ArrayList<>(); // カメラデータ
@@ -71,10 +72,28 @@ public class ExperimentManager {
         _context = context;
         _fileManager = new GapFileManager(_context);
         _restManager = new RestManager();
+        _startTime = -1;
     }
     // 心拍ストック開始
     public void StartStockHeart(){
-
+       // 心拍リスナーをセット
+        GapNotificationApplication.getBleContentManager(_context).getHeartRate().setNotificationListener(new NotificationListener() {
+            @Override
+            public void getNotification(byte[] bytes) {
+                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+                setHeartRateCache(data);
+                // 十分ストックが貯まったら通知する
+                if (_heartRateData.size() > STOCK_HEARTRATE_SIZE && _listener != null){
+                    _listener.GetEnoughStockHeartRate();
+                }
+            }
+        });
+        // 実験開始時間をセット
+        _startTime = System.currentTimeMillis();
+    }
+    // 現在の心拍値数
+    public int GetHeartRateSize(){
+        return  _heartRateData.size();
     }
     // リスナーをセット
     public void SetListener(ExperimentManagerListener listener){
@@ -85,8 +104,6 @@ public class ExperimentManager {
         // MVEと心拍のストックが無い場合はスタートしない
         if (!CanStart()) return;
 
-        // 実験開始時間を保存
-        _startTime = System.currentTimeMillis();
         // 実験ディレクトリを取得する
         _rootDirectory = _fileManager.getNewLogDirectory();
         Log.d(TAG, _rootDirectory.toString());
@@ -125,7 +142,7 @@ public class ExperimentManager {
                 setHeartRateCache(data);
             }
         });
-//
+
 //        // 筋電リスナーをセット
         GapNotificationApplication.getBleContentManager(_context).getEMG().setNotificationListener(new NotificationListener() {
             @Override
@@ -135,9 +152,6 @@ public class ExperimentManager {
             }
         });
 
-
-        // 筋電のテストデータ作成を開始
-//        CreateTestSensor();
     }
 
     // 実験終了
@@ -208,6 +222,7 @@ public class ExperimentManager {
         if (_listener != null) {
             _listener.GetHeartRate(heart);
         }
+        Log.d(TAG, "get heart rate : " + heart.value.toString() + " time : " + heart.time);
         sendApiServer();
     }
 
@@ -304,7 +319,7 @@ public class ExperimentManager {
         _MVE = mve;
     }
     public boolean CanStart(){
-        return _MVE != -1 && _heartRateData.size() >= 256;
+        return _MVE != -1 && _heartRateData.size() >= STOCK_HEARTRATE_SIZE;
     }
 
 }
