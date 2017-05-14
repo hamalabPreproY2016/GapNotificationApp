@@ -48,9 +48,6 @@ public class ExperimentManager {
     private RestManager _restManager; // RestAPIを管理する
     private ExperimentManagerListener _listener = null;
 
-    // 筋電平均取得時間関係
-    private final long _average_time_milliseconds = 60 * 5 * 1000; // 5分間の平均取得時間
-//    private final long _average_time_milliseconds = 10 * 1000; // 10秒間の平均取得時間
     private int _MVE = -1;
 
     private List<Voice> _voiceData = new ArrayList<>(); // 音声データ
@@ -295,38 +292,6 @@ public class ExperimentManager {
     }
     // 実験開始からの経過時間を取得する
     private long getRemmaningTime(){return System.currentTimeMillis() - _startTime;}
-
-    // 筋電の平均を取得
-    private void SessionAverageEMG(){
-        // 現在の経過時間が平常値取得時間よりも長かった場合は
-        if (getRemmaningTime() > _average_time_milliseconds){
-            // pojofileを作成
-            RequestPrepareEMG request_average = new RequestPrepareEMG();
-            request_average.emg = new ArrayList<>(_emgData);
-            // 筋電をAPIに送って平均値を取得する
-            _restManager.postEmgMVE(request_average, new Callback<ResponseMVE>() {
-            @Override
-                public void onResponse(Call<ResponseMVE> call, Response<ResponseMVE> response) {
-                    if (response.code() == 200) {
-                        Log.d(TAG, "average mve :" + Double.toString(response.body().mve));
-//                        _isGetAverageEmgSession = false;
-                        _MVE = response.body().mve;
-                        if(_listener != null) {
-                            _listener.GetEmgAverage(_MVE);
-                        }
-                    } else {
-                        Log.d(TAG, "access error : status code " + Integer.toString(response.code()));
-                    }
-
-                }
-
-                @Override
-                public void onFailure(Call<ResponseMVE> call, Throwable t) {
-
-                }
-            });
-        }
-    }
 
     Timer timer = null;
     private void CreateTestSensor(){
