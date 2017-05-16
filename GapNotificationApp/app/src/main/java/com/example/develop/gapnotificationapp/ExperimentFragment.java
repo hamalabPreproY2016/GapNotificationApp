@@ -122,8 +122,8 @@ public class ExperimentFragment extends Fragment {
             _bleManager.setHeartRate(heartRate);
         }
         // BLEの接続状態を表記
-        _bleEMG.setText(getString(R.string.experiment_emg_ble, _bleManager.getEMG() == null ? "未接続" : "接続済"));
-        _bleHeartRate.setText(getString(R.string.experiment_heartrate_ble, _bleManager.getHeartRate() == null ? "未接続" : "接続済"));
+        _bleEMG.setText(getString(R.string.experiment_emg_ble, _bleManager.getEMG() == null ? "無" : "有"));
+        _bleHeartRate.setText(getString(R.string.experiment_heartrate_ble, _bleManager.getHeartRate() == null ? "無" : "有"));
         _ExpID.setText(getString(R.string.experiment_id,  " "));
         // Bluetooth通信を開始
         if (_bleManager.getHeartRate() != null && _bleManager.getEMG() != null) {
