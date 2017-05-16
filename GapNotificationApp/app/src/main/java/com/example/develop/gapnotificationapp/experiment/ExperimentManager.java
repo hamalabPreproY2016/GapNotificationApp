@@ -3,7 +3,10 @@ package com.example.develop.gapnotificationapp.experiment;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.develop.gapnotificationapp.Ble.BleContent;
+import com.example.develop.gapnotificationapp.Ble.BleContentManager;
 import com.example.develop.gapnotificationapp.Ble.NotificationListener;
+import com.example.develop.gapnotificationapp.Ble.TestBleContent;
 import com.example.develop.gapnotificationapp.CSVManager;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.Log.GapFileManager;
@@ -69,16 +72,31 @@ public class ExperimentManager {
 
     private GapFileManager _fileManager;
 
+    // BLEデバイス
+    private BleContentManager _bleManager;
+
     public ExperimentManager(Context context){
         _context = context;
         _fileManager = new GapFileManager(_context);
         _restManager = new RestManager();
         _startTime = -1;
+        _bleManager = GapNotificationApplication.getBleContentManager(_context);
     }
     // 心拍ストック開始
-    public void StartStockHeart(){
+    public boolean StartStockHeart(){
+        // テストフラグが立っていればのTESTBLEモジュールを使用する
+        if (GapNotificationApplication.BLE_TEST){
+            TestBleContent heartRate = new TestBleContent();
+            _bleManager.setHeartRate(heartRate);
+        }
+        // 心拍bleがセットされていない場合は開始することができない
+        if(_bleManager.getHeartRate() == null) return false;
+        // 心拍bleの通信開始
+        _bleManager.getHeartRate().Connect();
+
+
        // 心拍リスナーをセット
-        GapNotificationApplication.getBleContentManager(_context).getHeartRate().setNotificationListener(new NotificationListener() {
+        _bleManager.getHeartRate().setNotificationListener(new NotificationListener() {
             @Override
             public void getNotification(byte[] bytes) {
                 Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
@@ -100,6 +118,8 @@ public class ExperimentManager {
                 setHeartRateCache(value);
             }
         }
+
+        return true;
     }
     // 現在の心拍値数
     public int GetHeartRateSize(){
@@ -110,9 +130,21 @@ public class ExperimentManager {
         _listener = listener;
     }
     // 実験開始
-    public void Start(){
+    public boolean Start(){
         // MVEと心拍のストックが無い場合はスタートしない
-        if (!CanStart()) return;
+        if (!CanStart()) return false;
+
+        // テスト用のBLEContentモジュールを使用する
+        if (GapNotificationApplication.BLE_TEST){
+            TestBleContent emg = new TestBleContent();
+            _bleManager.setEMG(emg);
+        }
+        // BLEContentがセットされていない場合は開始しない
+        if (_bleManager.getEMG() == null || _bleManager.getHeartRate() == null)return false;
+
+        // Bluetooth通信を開始
+        _bleManager.getEMG().Connect();
+        _bleManager.getHeartRate().Connect();
 
         // 実験が始まった時間を記録
         Session();
@@ -148,7 +180,7 @@ public class ExperimentManager {
 
 //
 //        // 心拍リスナーをセット
-        GapNotificationApplication.getBleContentManager(_context).getHeartRate().setNotificationListener(new NotificationListener() {
+        _bleManager.getHeartRate().setNotificationListener(new NotificationListener() {
             @Override
             public void getNotification(byte[] bytes) {
                 Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
@@ -157,21 +189,24 @@ public class ExperimentManager {
         });
 
 //        // 筋電リスナーをセット
-        GapNotificationApplication.getBleContentManager(_context).getEMG().setNotificationListener(new NotificationListener() {
+        _bleManager.getEMG().setNotificationListener(new NotificationListener() {
             @Override
             public void getNotification(byte[] bytes) {
                 Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
                 setEmgCache(data);
             }
         });
-
+        return true;
     }
 
     // 実験終了
     public void Finish() {
         // 保存する
-        // リスナーとか解除する
+        // リスナーや他のデバイスを解除する
         _voiceSilcer.Finish();
+        _bleManager.getHeartRate().setNotificationListener(null);
+        _bleManager.getEMG().setNotificationListener(null);
+        GapNotificationApplication.getTakePictureRepeater(_context).invalidateCapturePicture();
 
         File csvDir = CSVManager.createCSVDirectory(_rootDirectory);
 

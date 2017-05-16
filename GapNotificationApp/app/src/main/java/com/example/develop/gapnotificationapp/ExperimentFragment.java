@@ -114,22 +114,12 @@ public class ExperimentFragment extends Fragment {
         ButterKnife.bind(this, view);
         _bleManager = GapNotificationApplication.getBleContentManager(getActivity());
 
-        // テスト用のBLEContentモジュールを使用する
-        if (GapNotificationApplication.BLE_TEST){
-            TestBleContent emg = new TestBleContent();
-            TestBleContent heartRate = new TestBleContent();
-            _bleManager.setEMG(emg);
-            _bleManager.setHeartRate(heartRate);
-        }
+
         // BLEの接続状態を表記
         _bleEMG.setText(getString(R.string.experiment_emg_ble, _bleManager.getEMG() == null ? "無" : "有"));
         _bleHeartRate.setText(getString(R.string.experiment_heartrate_ble, _bleManager.getHeartRate() == null ? "無" : "有"));
         _ExpID.setText(getString(R.string.experiment_id,  " "));
-        // Bluetooth通信を開始
-        if (_bleManager.getHeartRate() != null && _bleManager.getEMG() != null) {
-            _bleManager.getEMG().Connect();
-            _bleManager.getHeartRate().Connect();
-        }
+
 
 
         _expManager = new ExperimentManager(getActivity());
