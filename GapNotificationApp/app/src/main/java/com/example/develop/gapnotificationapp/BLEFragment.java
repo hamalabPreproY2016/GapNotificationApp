@@ -112,7 +112,7 @@ public class BLEFragment extends Fragment {
                             rxBleScanResult -> {
                                 _adapter.addScanResult(rxBleScanResult);
 //                                Log.d("D", "scan success");
-                                scanSubscription.unsubscribe();
+//                                scanSubscription.unsubscribe();
                             },
                             throwable -> {
                                 // Handle an error here.
