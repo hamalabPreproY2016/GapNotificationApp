@@ -52,6 +52,27 @@
                     android:layout_height="wrap_content"
                     android:text="心拍ストックなし"/>
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_marginLeft="10px">
+                <TextView
+                    android:id="@+id/experiment_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/experiment_id"/>
+                <TextView
+                    android:id="@+id/experiment_ble_heartrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/experiment_heartrate_ble"/>
+                <TextView
+                    android:id="@+id/experiment_ble_emg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/experiment_emg_ble"/>
+            </LinearLayout>
         </LinearLayout>
 
 

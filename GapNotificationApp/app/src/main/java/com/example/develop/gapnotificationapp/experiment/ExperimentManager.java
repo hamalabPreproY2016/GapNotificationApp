@@ -337,5 +337,9 @@ public class ExperimentManager {
     public boolean CanStart(){
         return _MVE != -1 && _heartRateData.size() >= STOCK_HEARTRATE_SIZE;
     }
+    // 実験IDを取得
+    public String GetExpID(){
+        return _rootDirectory.getName();
+    }
 
 }

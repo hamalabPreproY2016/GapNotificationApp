@@ -28,4 +28,8 @@
     <string name="directory_delete">削除</string>
     <string name="directory_name">実験日時 %1$s</string>
 
+    <string name="experiment_id">実験ID : %1$s</string>
+    <string name="experiment_heartrate_ble">心拍BLE : %1$s</string>
+    <string name="experiment_emg_ble">筋電BLE : %1$s</string>
+
 </resources>

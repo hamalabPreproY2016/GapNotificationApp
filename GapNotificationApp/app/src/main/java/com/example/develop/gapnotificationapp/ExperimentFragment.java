@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.develop.gapnotificationapp.Ble.BleContent;
+import com.example.develop.gapnotificationapp.Ble.BleContentManager;
 import com.example.develop.gapnotificationapp.Ble.TestBleContent;
 import com.example.develop.gapnotificationapp.camera.Camera;
 import com.example.develop.gapnotificationapp.experiment.ExperimentManager;
@@ -82,6 +84,15 @@ public class ExperimentFragment extends Fragment {
     @BindView(R.id.camera_preview)
     TextureView _textureView;
 
+    @BindView(R.id.experiment_ble_emg)
+    TextView _bleEMG;
+
+    @BindView(R.id.experiment_ble_heartrate)
+    TextView _bleHeartRate;
+
+    @BindView(R.id.experiment_id)
+    TextView _ExpID;
+
 //    @BindView(R.id.tabhost)
 //    TabHost _tabHost;
 
@@ -94,22 +105,33 @@ public class ExperimentFragment extends Fragment {
         // Required empty public constructor
     }
 
+    private BleContentManager _bleManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_experiment, container, false);
         ButterKnife.bind(this, view);
+        _bleManager = GapNotificationApplication.getBleContentManager(getActivity());
+
         // テスト用のBLEContentモジュールを使用する
         if (GapNotificationApplication.BLE_TEST){
             TestBleContent emg = new TestBleContent();
             TestBleContent heartRate = new TestBleContent();
-            GapNotificationApplication.getBleContentManager(getActivity()).setEMG(emg);
-            GapNotificationApplication.getBleContentManager(getActivity()).setHeartRate(heartRate);
+            _bleManager.setEMG(emg);
+            _bleManager.setHeartRate(heartRate);
         }
+        // BLEの接続状態を表記
+        _bleEMG.setText(getString(R.string.experiment_emg_ble, _bleManager.getEMG() == null ? "未接続" : "接続済"));
+        _bleHeartRate.setText(getString(R.string.experiment_heartrate_ble, _bleManager.getHeartRate() == null ? "未接続" : "接続済"));
+        _ExpID.setText(getString(R.string.experiment_id,  " "));
         // Bluetooth通信を開始
-        GapNotificationApplication.getBleContentManager(getActivity()).getEMG().Connect();
-        GapNotificationApplication.getBleContentManager(getActivity()).getHeartRate().Connect();
+        if (_bleManager.getHeartRate() != null && _bleManager.getEMG() != null) {
+            _bleManager.getEMG().Connect();
+            _bleManager.getHeartRate().Connect();
+        }
+
+
         _expManager = new ExperimentManager(getActivity());
 
         camera = new Camera(getContext(), _textureView);
@@ -267,6 +289,7 @@ public class ExperimentFragment extends Fragment {
             });
             _expManager.Start();
             _startButton.setText("すとっぷ");
+            _ExpID.setText(getString(R.string.experiment_id,  _expManager.GetExpID()));
         } else {
             _expManager.Finish();
             _startButton.setText("すたーと");
