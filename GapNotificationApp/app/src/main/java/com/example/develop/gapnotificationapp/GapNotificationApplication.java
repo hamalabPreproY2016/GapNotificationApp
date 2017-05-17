@@ -19,8 +19,8 @@ public class GapNotificationApplication extends Application {
     private RestManager restManager;
     private TakePictureRepeater repeater;
 
-    public static final boolean BLE_TEST = true; // テストBLEモジュールを使う
-    public static final boolean STOCK_HEART_TEST = true;  // 心拍のストックをテスト値で代用
+    public static final boolean BLE_TEST = false; // テストBLEモジュールを使う
+    public static final boolean STOCK_HEART_TEST = false;  // 心拍のストックをテスト値で代用
     /**
      * In practise you will use some kind of dependency injection pattern.
      */

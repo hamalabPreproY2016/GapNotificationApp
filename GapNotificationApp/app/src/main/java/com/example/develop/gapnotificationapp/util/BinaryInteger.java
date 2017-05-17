@@ -13,9 +13,9 @@ public class BinaryInteger {
         if (1 <= bytes.length && bytes.length <= 2){
             short result;
             if(bytes.length == 1){
-                result = (short) (bytes[0] & 0xff);
+                result = (short) (bytes[0] << 2 & 0x3ff);
             } else{
-                result = (short) ((bytes[1] & 0xff) | (bytes[0] << 8));
+                result = (short) ((bytes[1] << 2 & 0x3ff) | (bytes[0] << 10));
             }
             return result;
         }else {
