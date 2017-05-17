@@ -580,7 +580,7 @@ public class ExperimentFragment extends Fragment {
         _expManager.SetListener(new ExperimentManagerListener() {
             @Override
             public void GetHeartRate(Heartrate data) {
-                addPojoDataToHeartrateGraph(data);
+//                addPojoDataToHeartrateGraph(data);
                 handler.post(new Runnable() {
                     public void run() {
                         heartRateStatus.setText("測定中 残り : " + Integer.toString(ExperimentManager.STOCK_HEARTRATE_SIZE - _expManager.GetHeartRateSize()));

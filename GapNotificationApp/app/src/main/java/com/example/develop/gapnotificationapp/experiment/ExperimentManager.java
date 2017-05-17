@@ -146,8 +146,16 @@ public class ExperimentManager {
         _bleManager.getEMG().Connect();
         _bleManager.getHeartRate().Connect();
 
-        // 実験が始まった時間を記録
-        Session();
+        // 実験開始時間をセット
+        long epoch = getRemmaningTime();
+
+        // 実験開始以前の心拍データの取得時間を実験開始時刻をエポックタイムとしたマイナス値にする
+        for(int i = 0; i < _heartRateData.size(); i++){
+            long past =  Long.parseLong(_heartRateData.get(i).time);
+            _heartRateData.get(i).time = Long.toString(past - epoch);
+        }
+        // 現在時刻を実験開始時刻にセット
+        _startTime = System.currentTimeMillis();
 
         // 実験ディレクトリを取得する
         _rootDirectory = _fileManager.getNewLogDirectory();
