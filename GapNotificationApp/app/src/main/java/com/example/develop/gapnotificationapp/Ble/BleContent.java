@@ -1,5 +1,6 @@
 package com.example.develop.gapnotificationapp.Ble;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -76,6 +77,13 @@ public class BleContent {
         _writeBytes = WriteData;
         Connect();
     }
+    public void ConnectRecive(){
+        connectionObservable.subscribe(rxBleConnection -> {
+            if (_listener != null) {
+                _listener.Connected();
+            }
+        });
+    }
     // 接続
     public void Connect(){
         Log.d(TAG, "きてる");
@@ -133,4 +141,5 @@ public class BleContent {
     public void setNotificationListener(NotificationListener listener) {
         _listener = listener;
     }
+
 }

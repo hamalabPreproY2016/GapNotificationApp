@@ -108,6 +108,10 @@ public class BleScanResultsAdapter extends BaseAdapter {
                     int num = BinaryInteger.TwoByteToInteger(bytes);
                     Log.d("BLECONNTENT", "kore" + Integer.toString(num));
                 }
+            @Override
+            public void Connected() {
+
+            }
             });
 //        setBleType(item);
         _bleDevicesList.add(item);

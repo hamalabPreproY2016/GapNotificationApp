@@ -114,7 +114,10 @@ public class ExperimentFragment extends Fragment {
         ButterKnife.bind(this, view);
         _bleManager = GapNotificationApplication.getBleContentManager(getActivity());
 
-
+        if (!GapNotificationApplication.BLE_TEST){
+            _bleManager.getEMG().Connect();
+            _bleManager.getHeartRate().Connect();
+        }
         // BLEの接続状態を表記
         _bleEMG.setText(getString(R.string.experiment_emg_ble, _bleManager.getEMG() == null ? "無" : "有"));
         _bleHeartRate.setText(getString(R.string.experiment_heartrate_ble, _bleManager.getHeartRate() == null ? "無" : "有"));
@@ -571,7 +574,7 @@ public class ExperimentFragment extends Fragment {
             }
         };
         handler.post(r);
-        manager.Start();
+        manager.Start(getActivity());
     }
     @OnClick(R.id.startHeartRateStorage)
     public void heartrateToggleClick(){

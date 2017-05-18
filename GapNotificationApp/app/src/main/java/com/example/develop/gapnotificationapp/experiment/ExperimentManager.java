@@ -106,6 +106,10 @@ public class ExperimentManager {
                     _listener.GetEnoughStockHeartRate();
                 }
             }
+            @Override
+            public void Connected() {
+
+            }
         });
         // 実験開始時間をセット
         _startTime = System.currentTimeMillis();
@@ -194,6 +198,10 @@ public class ExperimentManager {
                 Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
                 setHeartRateCache(data);
             }
+            @Override
+            public void Connected() {
+
+            }
         });
 
 //        // 筋電リスナーをセット
@@ -202,6 +210,10 @@ public class ExperimentManager {
             public void getNotification(byte[] bytes) {
                 Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
                 setEmgCache(data);
+            }
+            @Override
+            public void Connected() {
+
             }
         });
         return true;

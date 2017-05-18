@@ -1,11 +1,17 @@
 package com.example.develop.gapnotificationapp.experiment;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.example.develop.gapnotificationapp.Ble.BleContent;
+import com.example.develop.gapnotificationapp.Ble.BleContentManager;
+import com.example.develop.gapnotificationapp.Ble.NotificationListener;
+import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.model.Emg;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.RequestPrepareEMG;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseMVE;
 import com.example.develop.gapnotificationapp.rest.RestManager;
+import com.example.develop.gapnotificationapp.util.BinaryInteger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,30 +35,29 @@ public class GetMveManager {
     private static final String TAG = "experiment";
     private GetMveManagerListener _listener = null;
     private long _startTime;
+    private BleContent _ble ;
 
-    private void createTestMoule(){
-        int COUNT = 300;
-        for(int i = 0; i < COUNT ; i ++){
-            // 筋電の値を乱数で作成
-            Random r = new Random();
-            Short value = (short)(r.nextInt(300) + 1);
-            setEmgData(value);
-        }
-
-    }
 
     // Mveの取得を開始
-    public void Start(){
+    public boolean Start(Context context){
+        _ble =  GapNotificationApplication.getBleContentManager(context).getEMG();
+        if (_ble == null) {
+            return false;
+        }
+        _ble.Connect();
         _startTime = getRemmaningTime();
-//        // 筋電リスナーをセット
-//        GapNotificationApplication.getBleContentManager(_context).getEMG().setNotificationListener(new NotificationListener() {
-//            @Override
-//            public void getNotification(byte[] bytes) {
-//                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-//            }
-//        });
-        // テストデータを作成
-        createTestMoule();
+        // 筋電リスナーをセット
+        _ble.setNotificationListener(new NotificationListener() {
+            @Override
+            public void getNotification(byte[] bytes) {
+                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+                setEmgData(data);
+            }
+            @Override
+            public void Connected() {
+
+            }
+        });
         // 10秒後にAPIへ筋電を送る
         Timer timer = new Timer(true);
         timer.schedule(new TimerTask() {
@@ -83,6 +88,8 @@ public class GetMveManager {
                 });
             }
             }, _interval);
+
+        return true;
     }
     public int getMve(){
         return _mve;

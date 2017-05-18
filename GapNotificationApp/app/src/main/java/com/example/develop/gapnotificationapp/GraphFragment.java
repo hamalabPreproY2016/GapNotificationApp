@@ -131,6 +131,10 @@ public class GraphFragment extends Fragment {
                 rriGraph.setVisibleXRangeMinimum(20000);
                 rriGraph.moveViewToX(passtime);
             }
+            @Override
+            public void Connected() {
+
+            }
         });
     }
 }

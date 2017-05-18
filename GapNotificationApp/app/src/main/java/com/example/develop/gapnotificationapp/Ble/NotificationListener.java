@@ -9,4 +9,5 @@ import java.util.Objects;
 public  abstract class NotificationListener{
     public Object object;
     public abstract void getNotification(byte[] bytes);
+    public abstract void Connected();
 }
