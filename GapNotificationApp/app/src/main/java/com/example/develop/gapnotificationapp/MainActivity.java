@@ -13,6 +13,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -21,6 +22,13 @@ import com.example.develop.gapnotificationapp.voice.RealTimeVoiceSlicer;
 
 import java.io.File;
 
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnPermissionDenied;
+import permissions.dispatcher.OnShowRationale;
+import permissions.dispatcher.PermissionRequest;
+import permissions.dispatcher.RuntimePermissions;
+
+@RuntimePermissions
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -56,48 +64,34 @@ public class MainActivity extends AppCompatActivity
         current_flagment_id = R.id.nav_main;
         MainFragment newFragment = new MainFragment();
         fragmentTransaction.replace(R.id.container, newFragment).commit();
-
-        checkPermission();
+        MainActivityPermissionsDispatcher.permissionWithCheck(MainActivity.this);
 
     }
-
+    @NeedsPermission({
+            Manifest.permission.CAMERA ,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE, })
     // パーミッションを確認
-    public void checkPermission() {
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            // 権限があればLocationManagerを取得
-            Toast.makeText(MainActivity.this, "位置情報の取得は既に許可されています", Toast.LENGTH_SHORT).show();
-        } else {
-            // なければ権限を求めるダイアログを表示
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    1);
-        }
-//        // 位置情報
-//        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-//        }
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-            // 権限があればLocationManagerを取得
-            Toast.makeText(MainActivity.this, "カメラの使用は既に許可されています", Toast.LENGTH_SHORT).show();
-        } else {
-            // なければ権限を求めるダイアログを表示
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA},
-                    2);
-        }
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            // 権限があればLocationManagerを取得
-            Toast.makeText(MainActivity.this, "マイクへのアクセスは既に許可されています", Toast.LENGTH_SHORT).show();
-        } else {
-            // なければ権限を求めるダイアログを表示
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, 3);
-        }
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            // 権限があればLocationManagerを取得
-            Toast.makeText(MainActivity.this, "ローカルファイルへのアクセスは既に許可されています", Toast.LENGTH_SHORT).show();
-        } else {
-            // なければ権限を求めるダイアログを表示
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 4);
-        }
+    public void permission() {
     }
+    @OnPermissionDenied({
+            Manifest.permission.CAMERA ,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE })
+    public void deniedPermission(){
+    }
+    @SuppressWarnings("unused")
+    @OnShowRationale({
+            Manifest.permission.CAMERA ,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE })
+    public void showRationalForStorage(final PermissionRequest request){
+        request.proceed();
+    }
+
 
     // パーミッションダイアログの結果受取
     @Override
