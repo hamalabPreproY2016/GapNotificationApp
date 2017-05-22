@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import com.example.develop.gapnotificationapp.Ble.BleScanResultsAdapter;
 import com.example.develop.gapnotificationapp.dummy.DummyContent.DummyItem;
 import com.polidea.rxandroidble.RxBleClient;
+import com.polidea.rxandroidble.exceptions.BleScanException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -111,12 +113,11 @@ public class BLEFragment extends Fragment {
                     .subscribe(
                             rxBleScanResult -> {
                                 _adapter.addScanResult(rxBleScanResult);
-//                                Log.d("D", "scan success");
-//                                scanSubscription.unsubscribe();
                             },
                             throwable -> {
-                                // Handle an error here.
-                                Log.d("D", "scan failed");
+                                if (throwable instanceof BleScanException) {
+                                    handleBleScanException((BleScanException) throwable);
+                                }
                             }
                     );
 
@@ -217,6 +218,28 @@ public class BLEFragment extends Fragment {
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(DummyItem item);
+    }
+    private void handleBleScanException(BleScanException bleScanException) {
+
+        switch (bleScanException.getReason()) {
+            case BleScanException.BLUETOOTH_NOT_AVAILABLE:
+                Toast.makeText(getContext(), "Bluetooth is not available", Toast.LENGTH_SHORT).show();
+                break;
+            case BleScanException.BLUETOOTH_DISABLED:
+                Toast.makeText(getContext(), "Enable bluetooth and try again", Toast.LENGTH_SHORT).show();
+                break;
+            case BleScanException.LOCATION_PERMISSION_MISSING:
+                Toast.makeText(getContext(),
+                        "On Android 6.0 location permission is required. Implement Runtime Permissions", Toast.LENGTH_SHORT).show();
+                break;
+            case BleScanException.LOCATION_SERVICES_DISABLED:
+                Toast.makeText(getContext(), "Location services needs to be enabled on Android 6.0", Toast.LENGTH_SHORT).show();
+                break;
+            case BleScanException.BLUETOOTH_CANNOT_START:
+            default:
+                Toast.makeText(getContext(), "Unable to start scanning", Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 
 }
