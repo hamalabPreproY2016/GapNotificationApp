@@ -3,6 +3,7 @@ package com.example.develop.gapnotificationapp.rest;
 
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
 import com.example.develop.gapnotificationapp.model.ResponseAngry;
+import com.example.develop.gapnotificationapp.rest.Pojo.CheckerPojo;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.RequestPrepareEMG;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseAverage;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseMVE;
@@ -75,6 +76,11 @@ public class RestManager {
         // リスナーをセット
         Call<ResponseAngry> call = _service.postAngry(jsonData, voice, face);
         call.enqueue(listener);
+    }
+    public void serverCheck(Callback<CheckerPojo> listener){
+        Call<CheckerPojo> call = _service.checkServer();
+        call.enqueue(listener);
+
     }
 
 
