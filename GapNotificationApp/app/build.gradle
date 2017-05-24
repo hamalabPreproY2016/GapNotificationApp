@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
-apply plugin: 'android-apt'
 
 buildscript {
     repositories {
@@ -51,9 +50,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.3.0'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
     compile "com.polidea.rxandroidble:rxandroidble:1.1.0"
-    compile 'com.jakewharton:butterknife:8.5.1'
-    compile 'com.polidea.rxandroidble:rxandroidble:1.1.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
 
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
@@ -63,6 +59,11 @@ dependencies {
     compile 'commons-lang:commons-lang:2.6'
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.github.hotchemi:permissionsdispatcher:2.0.1'
-    apt 'com.github.hotchemi:permissionsdispatcher-processor:2.0.1'
+
+    // butter kinife
+    compile 'com.jakewharton:butterknife:8.4.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
+    // permission
+    compile 'com.github.hotchemi:permissionsdispatcher:2.3.1'
+    annotationProcessor 'com.github.hotchemi:permissionsdispatcher-processor:2.3.1'
 }
