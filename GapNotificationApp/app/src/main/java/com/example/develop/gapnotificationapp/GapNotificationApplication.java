@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.example.develop.gapnotificationapp.Ble.BleContentManager;
+import com.example.develop.gapnotificationapp.Ble.TestBleContent;
 import com.example.develop.gapnotificationapp.camera.TakePictureRepeater;
 import com.example.develop.gapnotificationapp.rest.RestManager;
 import com.polidea.rxandroidble.RxBleClient;
@@ -19,8 +20,8 @@ public class GapNotificationApplication extends Application {
     private RestManager restManager;
     private TakePictureRepeater repeater;
 
-    public static final boolean BLE_TEST = true; // テストBLEモジュールを使う
-    public static final boolean STOCK_HEART_TEST = true;  // 心拍のストックをテスト値で代用
+    public static final boolean BLE_TEST = false; // テストBLEモジュールを使う
+    public static final boolean STOCK_HEART_TEST = false;  // 心拍のストックをテスト値で代用
     /**
      * In practise you will use some kind of dependency injection pattern.
      */
@@ -57,5 +58,12 @@ public class GapNotificationApplication extends Application {
         RxBleClient.setLogLevel(RxBleLog.DEBUG);
         restManager = new RestManager();
         repeater = new TakePictureRepeater();
+        // テストフラグが立っていればのTESTBLEモジュールを使用する
+        if (GapNotificationApplication.BLE_TEST){
+            TestBleContent heartRate = new TestBleContent();
+            bleManager.setHeartRate(heartRate);
+            TestBleContent emg = new TestBleContent();
+            bleManager.setEMG(emg);
+        }
     }
 }
