@@ -84,11 +84,6 @@ public class ExperimentManager {
     }
     // 心拍ストック開始
     public boolean StartStockHeart(){
-        // テストフラグが立っていればのTESTBLEモジュールを使用する
-        if (GapNotificationApplication.BLE_TEST){
-            TestBleContent heartRate = new TestBleContent();
-            _bleManager.setHeartRate(heartRate);
-        }
         // 心拍bleがセットされていない場合は開始することができない
         if(_bleManager.getHeartRate() == null) return false;
         // 心拍bleの通信開始

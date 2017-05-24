@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.os.Handler;
+import android.telecom.Call;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
@@ -27,6 +28,9 @@ import com.example.develop.gapnotificationapp.model.Face;
 import com.example.develop.gapnotificationapp.model.Heartrate;
 import com.example.develop.gapnotificationapp.model.ResponseAngry;
 import com.example.develop.gapnotificationapp.model.Voice;
+import com.example.develop.gapnotificationapp.rest.Pojo.CheckerPojo;
+import com.example.develop.gapnotificationapp.rest.RestManager;
+import com.example.develop.gapnotificationapp.util.BinaryInteger;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -46,10 +50,15 @@ import org.apache.commons.lang.ArrayUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -92,6 +101,9 @@ public class ExperimentFragment extends Fragment {
 
     @BindView(R.id.experiment_id)
     TextView _ExpID;
+
+    @BindView(R.id.experiment_api_status)
+    TextView _apiStatusView;
 
 //    @BindView(R.id.tabhost)
 //    TabHost _tabHost;
@@ -177,6 +189,8 @@ public class ExperimentFragment extends Fragment {
 
         previewCSVData();
 
+        // サーバーチェックを実行
+        serverChecker();
         return view;
     }
 
@@ -634,5 +648,33 @@ public class ExperimentFragment extends Fragment {
     @OnClick(R.id.insert_section)
     public void insertSection(){
         _expManager.Session();
+    }
+
+    private Timer timer;
+    private void serverChecker(){
+        RestManager restManager = new RestManager();
+        timer = new Timer(true);
+        // 1秒ごとに筋電のテストデータを作成
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                restManager.serverCheck(new Callback<CheckerPojo>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<CheckerPojo> call, Response<CheckerPojo> response) {
+                        _apiStatusView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                _apiStatusView.setText(getString(R.string.experiment_server_status, response.code()));
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<CheckerPojo> call, Throwable t) {
+
+                    }
+                });
+            }
+        }, 0, 3000);
     }
 }

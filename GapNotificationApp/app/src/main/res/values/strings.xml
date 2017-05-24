@@ -31,5 +31,6 @@
     <string name="experiment_id">実験ID : %1$s</string>
     <string name="experiment_heartrate_ble">心拍BLE : %1$s</string>
     <string name="experiment_emg_ble">筋電BLE : %1$s</string>
+    <string name="experiment_server_status">API Status : %1$d</string>
 
 </resources>
