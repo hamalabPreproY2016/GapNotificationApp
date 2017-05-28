@@ -8,7 +8,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.R;
 import com.example.develop.gapnotificationapp.util.BinaryInteger;
@@ -100,19 +102,6 @@ public class BleScanResultsAdapter extends BaseAdapter {
 
         BleContent tmp = new BleContent(_context, bleScanResult.getBleDevice().getMacAddress());
         BleViewItem item = new BleViewItem(tmp, bleScanResult.getRssi(), "");
-        tmp.setNotificationListener(new NotificationListener() {
-                @Override
-                public void getNotification(byte[] bytes) {
-                    Log.d("BLECONNTENT", "kore" + "きてる　");
-
-                    int num = BinaryInteger.TwoByteToInteger(bytes);
-                    Log.d("BLECONNTENT", "kore" + Integer.toString(num));
-                }
-            @Override
-            public void Connected() {
-
-            }
-            });
 //        setBleType(item);
         _bleDevicesList.add(item);
         Collections.sort(_bleDevicesList, SORTING_COMPARATOR);
@@ -177,16 +166,45 @@ public class BleScanResultsAdapter extends BaseAdapter {
         public void onClick(View view) {
 
             int position =(int)view.getTag();
-            BleContent tmp = ((BleViewItem)getItem(position)).device;
-            if(tmp.Connected()){
-                ((Button)view).setText("CONNECT");
-                tmp.DisConnect();
-            }else {
-                Log.d(tmp.TAG, "Connect");
-                ((Button) view).setText("DISCONNECT");
-                tmp.Connect();
-            }
+            BleViewItem ble = ((BleViewItem)getItem(position));
+
+            new MaterialDialog.Builder(_context)
+                    .title(R.string.menu_title)
+                    .items(R.array.sample_names)
+                    .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+                        @Override
+                        public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                            switch(text.toString()) {
+                                case "心拍":
+                                    GapNotificationApplication.getBleContentManager(_context).Deregistration(ble.device);
+                                    GapNotificationApplication.getBleContentManager(_context).setHeartRate(ble.device);
+                                    ble.setType(_context.getResources().getString(R.string.heart_rate));
+
+                                    Toast.makeText(_context, "このデバイスを心拍に登録しました", Toast.LENGTH_LONG).show();
+                                    break;
+                                case "筋電":
+                                    // ここに注文処理を記述。
+                                    GapNotificationApplication.getBleContentManager(_context).Deregistration(ble.device);
+                                    GapNotificationApplication.getBleContentManager(_context).setEMG(ble.device);
+                                    ble.setType(_context.getResources().getString(R.string.emg));
+                                    Toast.makeText(_context, "このデバイスを筋電位に登録しました", Toast.LENGTH_LONG).show();
+                                    break;
+                                case "解除":
+                                    GapNotificationApplication.getBleContentManager(_context).Deregistration(ble.device);
+                                    ble.setType(_context.getResources().getString(R.string.unregistered));
+                                    Toast.makeText(_context, "このデバイスの登録を解除しました", Toast.LENGTH_LONG).show();
+                                    break;
+                            }
+                            return true;
+                        }
+                    })
+                    .positiveText("OK")
+                    .show();
         }
+    }
+    @Override
+    public boolean isEnabled(int position) {
+        return false;
     }
 }
 

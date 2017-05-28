@@ -83,7 +83,6 @@ public class BLEFragment extends Fragment {
         _adapter = new BleScanResultsAdapter(getContext());
         _scanResults.setAdapter(_adapter);
         _rxBleClient = GapNotificationApplication.getRxBleClient(getContext());
-        registerForContextMenu(_scanResults);
         return view;
     }
 
@@ -160,49 +159,6 @@ public class BLEFragment extends Fragment {
 
         ExperimentFragment newFragment = new ExperimentFragment();
         fragmentTransaction.replace(R.id.container, newFragment).commit();
-    }
-
-    // コンテキストメニューの作成
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-
-        // BleContentのタイプを設定するためのコンテキストメニューを作成
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.setting_ble_content_type_context, menu);  //menuリスト
-        menu.setHeaderTitle(R.string.ble_scan_context_menu_header);  // タイトル
-        menu.setHeaderIcon(android.R.drawable.ic_menu_info_details);  // アイコン
-    }
-    // コンテキストメニューを選択した時の処理
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();  //（1）
-        int listPosition = info.position;
-        Log.d("BLECONNTENT", Integer.toBinaryString(listPosition));
-        BleScanResultsAdapter.BleViewItem ble = (BleScanResultsAdapter.BleViewItem)_adapter.getItem(listPosition);
-        int itemId = item.getItemId();
-        switch(itemId) {
-            case R.id.bleContentContextHeartRate:
-                GapNotificationApplication.getBleContentManager(getActivity()).Deregistration(ble.device);
-                GapNotificationApplication.getBleContentManager(getActivity()).setHeartRate(ble.device);
-                ble.setType(getActivity().getResources().getString(R.string.heart_rate));
-
-                Toast.makeText(getActivity(), "このデバイスを心拍に登録しました", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.bleContentContextEMG:
-                // ここに注文処理を記述。
-                GapNotificationApplication.getBleContentManager(getActivity()).Deregistration(ble.device);
-                GapNotificationApplication.getBleContentManager(getActivity()).setEMG(ble.device);
-                ble.setType(getActivity().getResources().getString(R.string.emg));
-                Toast.makeText(getActivity(), "このデバイスを筋電位に登録しました", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.bleContentDeregistration:
-                GapNotificationApplication.getBleContentManager(getActivity()).Deregistration(ble.device);
-                ble.setType(getActivity().getResources().getString(R.string.unregistered));
-                Toast.makeText(getActivity(), "このデバイスの登録を解除しました", Toast.LENGTH_LONG).show();
-                break;
-        }
-        return super.onContextItemSelected(item);
     }
 
     /**

@@ -32,5 +32,11 @@
     <string name="experiment_heartrate_ble">心拍BLE : %1$s</string>
     <string name="experiment_emg_ble">筋電BLE : %1$s</string>
     <string name="experiment_server_status">API Status : %1$d</string>
-
+    <string name="menu_title">デバイスを登録します</string>
+    <string name="ble_type">SET TYPE</string>
+    <string-array name="sample_names">
+        <item>心拍</item>
+        <item>筋電</item>
+        <item>解除</item>
+    </string-array>
 </resources>

@@ -231,6 +231,9 @@ public class ExperimentManager {
         CSVManager heartrateCSVManager = new CSVManager(new File(csvDir, "heartrate.csv"));
         heartrateCSVManager.csvWrite(_heartRateData);
 
+        CSVManager voiceCSVManager = new CSVManager(new File(csvDir, "voice.csv"));
+        voiceCSVManager.csvWrite(_voiceData);
+
         CSVManager emgCSVManager = new CSVManager(new File(csvDir, "emg.csv"));
         emgCSVManager.csvWrite(_emgData);
 

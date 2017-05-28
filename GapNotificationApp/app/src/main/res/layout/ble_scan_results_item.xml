@@ -7,62 +7,43 @@
         android:layout_height="wrap_content"
         android:layout_weight="1.26"
         android:orientation="vertical"
-        android:clickable="false"
-        android:descendantFocusability="blocksDescendants"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
         >
 
         <TextView
             android:id="@+id/ble_device_item_device_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="DeviceName"
-            android:clickable="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"/>
+            android:text="DeviceName" />
 
         <TextView
             android:id="@+id/ble_device_item_mac_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="MACアドレス"
-            android:clickable="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"/>
+            android:text="MACアドレス" />
 
         <TextView
             android:id="@+id/ble_device_item_rssi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="RSSI"
-            android:clickable="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"/>
+            android:text="RSSI" />
 
         <TextView
             android:id="@+id/ble_device_item_read"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Read"
-            android:clickable="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"/>
+            android:text="Read" />
         <TextView
             android:id="@+id/ble_device_item_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="未登録"
-            android:clickable="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"/>
+            android:text="未登録" />
 
     </LinearLayout>
     <Button
         android:id="@+id/ble_device_item_toggle"
         android:layout_width="100dp"
         android:layout_height="match_parent"
-        android:text="Connect"
+        android:text="@string/ble_type"
         android:clickable="false"
         android:focusable="false"
         android:focusableInTouchMode="false"/>
