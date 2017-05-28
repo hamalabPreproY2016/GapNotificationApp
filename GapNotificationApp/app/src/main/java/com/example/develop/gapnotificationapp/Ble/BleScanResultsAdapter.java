@@ -1,7 +1,6 @@
 package com.example.develop.gapnotificationapp.Ble;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.R;
-import com.example.develop.gapnotificationapp.util.BinaryInteger;
 import com.polidea.rxandroidble.RxBleDevice;
 import com.polidea.rxandroidble.RxBleScanResult;
 
@@ -33,8 +31,8 @@ public class BleScanResultsAdapter extends BaseAdapter {
     private LayoutInflater _inflater;
     private int _layoutID;
     private List<BleViewItem> _bleDevicesList= new ArrayList<BleViewItem>();
-    private boolean flag = true;
     private Context _context;
+    private BleContentManager _bleManager;
 
     static class ViewHolder {
         @BindView(R.id.ble_device_item_device_name)
@@ -43,8 +41,6 @@ public class BleScanResultsAdapter extends BaseAdapter {
         TextView macAddress;
         @BindView(R.id.ble_device_item_rssi)
         TextView RSSI;
-        @BindView(R.id.ble_device_item_read)
-        TextView readValue;
         @BindView(R.id.ble_device_item_type)
         TextView type;
         @BindView(R.id.ble_device_item_toggle)
@@ -55,21 +51,20 @@ public class BleScanResultsAdapter extends BaseAdapter {
     }
 
     public BleScanResultsAdapter(Context context){
-
         _context = context;
-
         _inflater = LayoutInflater.from(context);
         _layoutID = R.layout.ble_scan_results_item;
-
+        _bleManager = GapNotificationApplication.getBleContentManager(_context);
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
-        // 新規表示のとき
+        // 新規表示のときはviewHolderを新規作成する
         if (convertView == null) {
             convertView = _inflater.inflate(_layoutID, null);
             holder = new ViewHolder(convertView);
-            holder.connectToggle.setOnClickListener(new ConnectClickListener());
+            holder.connectToggle.setOnClickListener(new SetTypeClickListener());
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -78,54 +73,43 @@ public class BleScanResultsAdapter extends BaseAdapter {
         RxBleDevice device = item.device.getDevice();
         holder.deviceName.setText(device.getName());
         holder.macAddress.setText(device.getMacAddress());
-        holder.RSSI.setText("RSSI : " + Integer.toString(item.rssi));
-        holder.readValue.setText("Read : " + item.read);
+        holder.RSSI.setText(_context.getResources().getString(R.string.ble_scan_rssi, item.rssi));
         holder.connectToggle.setTag(position);
         _bleDevicesList.get(position).holder = holder;
 
         return convertView;
     }
 
+    // スキャンして発見したデバイスを追加してリストに表示
+    // 既存の場合はデバイス情報を更新する
     public void addScanResult(RxBleScanResult bleScanResult) {
-        // Not the best way to ensure distinct devices, just for sake on the demo.
+        // 既存の場合は内容を更新する
         for (int i = 0; i < _bleDevicesList.size(); i++) {
 
             if (_bleDevicesList.get(i).device.getDevice().equals(bleScanResult.getBleDevice())) {
                 _bleDevicesList.get(i).rssi = bleScanResult.getRssi();
-                _bleDevicesList.get(i).read = "";
                 _bleDevicesList.get(i).holder.RSSI.setText("RSSI : " + Integer.toString(bleScanResult.getRssi()));
-                _bleDevicesList.get(i).holder.readValue.setText(_bleDevicesList.get(i).read);
-                setBleType(_bleDevicesList.get(i));
+                showBLERegistTypeView(_bleDevicesList.get(i));
                 return;
             }
         }
-
+        // 新規発見の場合はリストに追加する
         BleContent tmp = new BleContent(_context, bleScanResult.getBleDevice().getMacAddress());
-        BleViewItem item = new BleViewItem(tmp, bleScanResult.getRssi(), "");
-//        setBleType(item);
+        BleViewItem item = new BleViewItem(tmp, bleScanResult.getRssi());
         _bleDevicesList.add(item);
         Collections.sort(_bleDevicesList, SORTING_COMPARATOR);
         notifyDataSetChanged();
     }
 
-    private void setBleType(BleViewItem item){
-        switch (GapNotificationApplication.getBleContentManager(_context).isRegistered(item.device)){
-            case (BleContentManager.HEART_RATE):
-                item.holder.type.setText( "心拍");
-                break;
-            case BleContentManager.EMG:
-                item.holder.type.setText("筋電位");
-                break;
-            case BleContentManager.UNREGISTERED:
-                item.holder.type.setText("未登録");
-                break;
-        }
+    // BLEデバイスのタイプをUIに表示する
+    private void showBLERegistTypeView(BleViewItem item){
+        String type = _context.getResources().getStringArray(R.array.ble_set_type)[ _bleManager.isRegistered(item.device).getInt()];
+        item.holder.type.setText(type);
     }
 
     @Override
     public int getCount() {
         return _bleDevicesList.size();
-
     }
 
     @Override
@@ -145,58 +129,41 @@ public class BleScanResultsAdapter extends BaseAdapter {
 
     public class BleViewItem {
         public BleContent device;
-        public String read;
         public int rssi;
         public ViewHolder holder;
-        public void setType(String type) {
-            holder.type.setText(type);
-        }
-        public BleViewItem(BleContent _device, int _rssi, String _read) {
+        public BleViewItem(BleContent _device, int _rssi) {
             device = _device;
-            read = _read;
             rssi = _rssi;
         }
     }
     // ソート用のラムダ式
-    private static final Comparator<BleViewItem> SORTING_COMPARATOR = (lhs, rhs) -> {
-        return lhs.device.getDevice().getName().compareTo(lhs.device.getDevice().getName());
-    };
-    public class ConnectClickListener implements View.OnClickListener {
+    private static final Comparator<BleViewItem> SORTING_COMPARATOR = (lhs, rhs) -> lhs.device.getDevice().getName().compareTo(lhs.device.getDevice().getName());
+
+    // タイプボタンをセットした時のリスナー
+    public class SetTypeClickListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-
+            // 選択したBLEデバイスを取得
             int position =(int)view.getTag();
-            BleViewItem ble = ((BleViewItem)getItem(position));
-
+            BleContent ble = ((BleViewItem)getItem(position)).device;
+            // BLEデバイスを心拍・筋電・未登録のどれにセットするかを選択させる
             new MaterialDialog.Builder(_context)
                     .title(R.string.menu_title)
-                    .items(R.array.sample_names)
-                    .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
-                        @Override
-                        public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                            switch(text.toString()) {
-                                case "心拍":
-                                    GapNotificationApplication.getBleContentManager(_context).Deregistration(ble.device);
-                                    GapNotificationApplication.getBleContentManager(_context).setHeartRate(ble.device);
-                                    ble.setType(_context.getResources().getString(R.string.heart_rate));
-
-                                    Toast.makeText(_context, "このデバイスを心拍に登録しました", Toast.LENGTH_LONG).show();
-                                    break;
-                                case "筋電":
-                                    // ここに注文処理を記述。
-                                    GapNotificationApplication.getBleContentManager(_context).Deregistration(ble.device);
-                                    GapNotificationApplication.getBleContentManager(_context).setEMG(ble.device);
-                                    ble.setType(_context.getResources().getString(R.string.emg));
-                                    Toast.makeText(_context, "このデバイスを筋電位に登録しました", Toast.LENGTH_LONG).show();
-                                    break;
-                                case "解除":
-                                    GapNotificationApplication.getBleContentManager(_context).Deregistration(ble.device);
-                                    ble.setType(_context.getResources().getString(R.string.unregistered));
-                                    Toast.makeText(_context, "このデバイスの登録を解除しました", Toast.LENGTH_LONG).show();
-                                    break;
-                            }
-                            return true;
+                    .items(R.array.ble_set_type)
+                    .itemsCallbackSingleChoice(-1, (MaterialDialog dialog, View view2, int which, CharSequence text) ->{
+                        _bleManager.Deregistration(ble);
+                        switch (which){
+                            case 0:
+                                _bleManager.setHeartRate(ble);
+                                break;
+                            case 1:
+                                _bleManager.setEMG(ble);
+                                break;
                         }
+                        // セットした旨を表示
+                        String toastMessage = _context.getString(R.string.ble_scan_result_regist, text);
+                        Toast.makeText(_context, toastMessage, Toast.LENGTH_LONG).show();
+                        return true;
                     })
                     .positiveText("OK")
                     .show();

@@ -7,9 +7,21 @@ package com.example.develop.gapnotificationapp.Ble;
 public class BleContentManager {
     private BleContent _HeartRate;
     private BleContent _EMG;
-    public static final int HEART_RATE = 0;
-    public static final int EMG = 1;
-    public static final int UNREGISTERED = -1;
+    public enum TYPE{
+        HEART(0), EMG(1), NON(2);
+        private String[] list = new String[]{"心拍", "筋電", "未登録"};
+        private final int id;
+        private TYPE(final int id){
+            this.id = id;
+        }
+        public int getInt(){
+            return this.id;
+        }
+        public String getString(){
+            return list[this.id];
+        }
+    }
+
 
     // 心拍
     public void setHeartRate(BleContent ble){
@@ -27,21 +39,21 @@ public class BleContentManager {
     }
 
     // 渡されたBleが心拍として登録されていたら0,筋電位だったら1,未登録なら-1
-    public int isRegistered(BleContent ble){
+    public TYPE isRegistered(BleContent ble){
         if (_HeartRate != null && _HeartRate.getDevice().equals(ble.getDevice())){
-            return HEART_RATE;
+            return TYPE.HEART;
         }
         if (_EMG != null && _EMG.getDevice().equals(ble.getDevice())){
-            return EMG;
+            return TYPE.EMG;
         }
 
-        return UNREGISTERED;
+        return TYPE.NON;
     }
     // 登録の解除
     public void Deregistration( BleContent ble){
 
         switch (isRegistered(ble)){
-            case HEART_RATE:
+            case HEART:
                 _HeartRate = null;
                 break;
             case EMG:
