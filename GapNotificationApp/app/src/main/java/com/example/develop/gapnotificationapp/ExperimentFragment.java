@@ -299,6 +299,13 @@ public class ExperimentFragment extends Fragment {
         }
         isRunning = !isRunning;
     }
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
 
     private void addPojoDataToHeartrateGraph(Heartrate heartrate) {
         LineData data = rriGraph.getLineData();
