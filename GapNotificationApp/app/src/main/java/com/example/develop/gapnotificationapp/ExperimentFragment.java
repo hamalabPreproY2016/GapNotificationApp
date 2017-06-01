@@ -304,6 +304,7 @@ public class ExperimentFragment extends Fragment {
         super.onPause();
         if (timer != null) {
             timer.cancel();
+            _expManager.Cancel();
         }
     }
 

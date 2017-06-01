@@ -17,6 +17,7 @@ import com.example.develop.gapnotificationapp.model.Heartrate;
 import com.example.develop.gapnotificationapp.model.ResponseAngry;
 import com.example.develop.gapnotificationapp.model.Session;
 import com.example.develop.gapnotificationapp.model.Voice;
+import com.example.develop.gapnotificationapp.model.mve;
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.RequestPrepareEMG;
 import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseAverage;
@@ -51,8 +52,7 @@ public class ExperimentManager {
     private File _rootDirectory; // 実験ログを保存するルートディレクトリ
     private RestManager _restManager; // RestAPIを管理する
     private ExperimentManagerListener _listener = null;
-
-    private int _MVE = -1;
+    private mve _MVE = new mve();
     public static final int STOCK_HEARTRATE_SIZE = 256;
 
     private List<Voice> _voiceData = new ArrayList<>(); // 音声データ
@@ -81,6 +81,7 @@ public class ExperimentManager {
         _restManager = new RestManager();
         _startTime = -1;
         _bleManager = GapNotificationApplication.getBleContentManager(_context);
+        _MVE.value = -1;
     }
     // 心拍ストック開始
     public boolean StartStockHeart(){
@@ -242,6 +243,11 @@ public class ExperimentManager {
 
         CSVManager sessionCSVManager = new CSVManager(new File(csvDir, "session.csv"));
         sessionCSVManager.csvWrite(_sessionTime);
+
+        CSVManager mveCSVManager = new CSVManager(new File(csvDir, "mve.csv"));
+        ArrayList<mve> tmp = new ArrayList<>();
+        tmp.add(_MVE);
+        mveCSVManager.csvWrite(tmp);
     }
 
     // セッションを追加
@@ -339,7 +345,7 @@ public class ExperimentManager {
         /* 送信データ作成 */
         RequestAngry sendJson = new RequestAngry();
         sendJson.sendTime = Long.toString(getRemmaningTime()); // 送信時間
-        sendJson.emgMve = _MVE; // 筋電の平均
+        sendJson.emgMve = _MVE.value; // 筋電の平均
 
         // 心拍の送信データの作成
         // 過去256個のデータを取得
@@ -385,14 +391,21 @@ public class ExperimentManager {
         _heartRateData = new ArrayList<>(arr);
     }
     public void SetMve(int mve){
-        _MVE = mve;
+        _MVE.value = mve;
+        _MVE.time = "0";
     }
     public boolean CanStart(){
-        return _MVE != -1 && _heartRateData.size() >= STOCK_HEARTRATE_SIZE;
+        return _MVE.value != -1 && _heartRateData.size() >= STOCK_HEARTRATE_SIZE;
     }
     // 実験IDを取得
     public String GetExpID(){
         return _rootDirectory.getName();
+    }
+
+    public void Cancel(){
+        if (_voiceSilcer != null ){
+            _voiceSilcer.Finish();
+        }
     }
 
 }
