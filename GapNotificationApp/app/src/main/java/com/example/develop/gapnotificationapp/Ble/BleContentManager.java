@@ -7,9 +7,10 @@ package com.example.develop.gapnotificationapp.Ble;
 public class BleContentManager {
     private BleContent _HeartRate;
     private BleContent _EMG;
+    private BleContent _Mortor;
     public enum TYPE{
-        HEART(0), EMG(1), NON(2);
-        private String[] list = new String[]{"心拍", "筋電", "未登録"};
+        HEART(0), EMG(1), MORTOR(2), NON(3);
+        private String[] list = new String[]{"心拍", "筋電", "振動", "未登録"};
         private final int id;
         private TYPE(final int id){
             this.id = id;
@@ -37,6 +38,13 @@ public class BleContentManager {
     public BleContent getEMG(){
         return _EMG;
     }
+    //振動モータ
+    public void setMortor(BleContent ble) {
+        _Mortor = ble;
+    }
+    public BleContent getMortor(){
+        return _Mortor;
+    }
 
     // 渡されたBleが心拍として登録されていたら0,筋電位だったら1,未登録なら-1
     public TYPE isRegistered(BleContent ble){
@@ -45,6 +53,9 @@ public class BleContentManager {
         }
         if (_EMG != null && _EMG.getDevice().equals(ble.getDevice())){
             return TYPE.EMG;
+        }
+        if (_Mortor != null && _Mortor.getDevice().equals(ble.getDevice())) {
+            return TYPE.MORTOR;
         }
 
         return TYPE.NON;
@@ -58,6 +69,9 @@ public class BleContentManager {
                 break;
             case EMG:
                 _EMG = null;
+                break;
+            case MORTOR:
+                _Mortor = null;
                 break;
         }
     }

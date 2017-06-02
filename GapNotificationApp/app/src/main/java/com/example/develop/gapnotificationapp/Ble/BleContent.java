@@ -1,6 +1,5 @@
 package com.example.develop.gapnotificationapp.Ble;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -75,7 +74,25 @@ public class BleContent {
     // 書込みデータをセット
     public void Write(byte[] WriteData){
         _writeBytes = WriteData;
-        Connect();
+        connectionObservable.flatMap(rxBleConnection -> rxBleConnection.writeCharacteristic(_writeUUID, this._writeBytes)
+                .flatMap(bytes ->rxBleConnection.setupNotification(_notifUUID))
+                .doOnNext(notificationObservable -> {
+                    Log.d(TAG, "Notification has been set up");
+                    // Notification has been set up
+                })
+                .flatMap(notificationObservable -> notificationObservable)
+        ).subscribe(
+                bytes -> {
+                    Log.d(TAG, "get notification data");
+                    if (_listener != null) {
+                        Log.d(TAG, "value : " + Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
+                        _listener.getNotification(bytes);
+                    }
+                },
+                throwable -> {
+                    // Handle an error here.
+                }
+        );
     }
     public void ConnectRecive(){
         connectionObservable.subscribe(rxBleConnection -> {

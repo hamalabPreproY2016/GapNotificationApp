@@ -159,6 +159,9 @@ public class BleScanResultsAdapter extends BaseAdapter {
                             case 1:
                                 _bleManager.setEMG(ble);
                                 break;
+                            case 2:
+                                _bleManager.setMortor(ble);
+                                break;
                         }
                         // セットした旨を表示
                         String toastMessage = _context.getString(R.string.ble_scan_result_regist, text);

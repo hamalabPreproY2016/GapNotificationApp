@@ -38,6 +38,7 @@
     <string-array name="ble_set_type">
         <item>心拍</item>
         <item>筋電</item>
+        <item>振動</item>
         <item>未登録</item>
     </string-array>
     <string name="ble_scan_result_regist">このデバイスを%1$sにセットしました</string>
