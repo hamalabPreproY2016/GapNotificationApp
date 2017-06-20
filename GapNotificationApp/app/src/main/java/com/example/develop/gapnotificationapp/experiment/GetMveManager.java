@@ -47,16 +47,9 @@ public class GetMveManager {
         _ble.Connect();
         _startTime = getRemmaningTime();
         // 筋電リスナーをセット
-        _ble.setNotificationListener(new NotificationListener() {
-            @Override
-            public void getNotification(byte[] bytes) {
-                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-                setEmgData(data);
-            }
-            @Override
-            public void Connected() {
-
-            }
+        _ble.setNotificationListener(bytes -> {
+            Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+            setEmgData(data);
         });
         // 10秒後にAPIへ筋電を送る
         Timer timer = new Timer(true);

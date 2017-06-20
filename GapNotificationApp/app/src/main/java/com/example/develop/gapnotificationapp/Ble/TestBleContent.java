@@ -32,8 +32,8 @@ public class TestBleContent  extends BleContent{
                 // 筋電の値を乱数で作成
                 Random r = new Random();
                 short value = (short)(r.nextInt(300) + 1);
-                if (_listener != null) {
-                    _listener.getNotification(BinaryInteger.ShortToByte(value));
+                if (mNotificationListener != null) {
+                    mNotificationListener.getNotification(BinaryInteger.ShortToByte(value));
                 }
             }
         }, 0, 1000);
