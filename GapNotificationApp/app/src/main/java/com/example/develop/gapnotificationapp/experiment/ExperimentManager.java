@@ -92,19 +92,12 @@ public class ExperimentManager {
 
 
        // 心拍リスナーをセット
-        _bleManager.getHeartRate().setNotificationListener(new NotificationListener() {
-            @Override
-            public void getNotification(byte[] bytes) {
-                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-                setHeartRateCache(data);
-                // 十分ストックが貯まったら通知する
-                if (_heartRateData.size() > STOCK_HEARTRATE_SIZE && _listener != null){
-                    _listener.GetEnoughStockHeartRate();
-                }
-            }
-            @Override
-            public void Connected() {
-
+        _bleManager.getHeartRate().setNotificationListener(bytes->{
+            Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+            setHeartRateCache(data);
+            // 十分ストックが貯まったら通知する
+            if (_heartRateData.size() > STOCK_HEARTRATE_SIZE && _listener != null){
+                _listener.GetEnoughStockHeartRate();
             }
         });
         // 実験開始時間をセット
@@ -188,29 +181,15 @@ public class ExperimentManager {
 
 //
 //        // 心拍リスナーをセット
-        _bleManager.getHeartRate().setNotificationListener(new NotificationListener() {
-            @Override
-            public void getNotification(byte[] bytes) {
-                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-                setHeartRateCache(data);
-            }
-            @Override
-            public void Connected() {
-
-            }
+        _bleManager.getHeartRate().setNotificationListener(bytes -> {
+            Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+            setHeartRateCache(data);
         });
 
 //        // 筋電リスナーをセット
-        _bleManager.getEMG().setNotificationListener(new NotificationListener() {
-            @Override
-            public void getNotification(byte[] bytes) {
-                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-                setEmgCache(data);
-            }
-            @Override
-            public void Connected() {
-
-            }
+        _bleManager.getEMG().setNotificationListener(bytes->{
+            Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+            setEmgCache(data);
         });
         return true;
     }

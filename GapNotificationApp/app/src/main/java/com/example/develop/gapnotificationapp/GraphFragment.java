@@ -105,36 +105,29 @@ public class GraphFragment extends Fragment {
         Log.d("graphFragment", "setrrigraph");
 
         BleContent heartRateContent = GapNotificationApplication.getBleContentManager(getActivity()).getHeartRate();
-        heartRateContent.setNotificationListener(new NotificationListener() {
-            @Override
-            public void getNotification(byte[] bytes) {
-                int num = BinaryInteger.TwoByteToInteger(bytes);
+        heartRateContent.setNotificationListener(bytes -> {
+            int num = BinaryInteger.TwoByteToInteger(bytes);
 
-                biometricManager.addRRI(num);
+            biometricManager.addRRI(num);
 //                        rriCountTextView.setText("rri:" + Integer.toString(num) + " count:" + Integer.toString(biometricManager.getRRIArray().size()));
 
-                ILineDataSet set = data.getDataSetByIndex(0);
-                if (set == null) {
-                    set = new LineDataSet(null, "RRI");
-                    set.setDrawValues(false);
-                    data.addDataSet(set);
-                }
-
-                List<Integer> rriArray = biometricManager.getRRIArray();
-
-                int passtime = rriArray.stream().reduce(0, (base, value) -> base + value);
-
-                data.addEntry(new Entry(passtime, num), 0);
-
-                rriGraph.notifyDataSetChanged();
-                rriGraph.setVisibleXRangeMaximum(20000);
-                rriGraph.setVisibleXRangeMinimum(20000);
-                rriGraph.moveViewToX(passtime);
+            ILineDataSet set = data.getDataSetByIndex(0);
+            if (set == null) {
+                set = new LineDataSet(null, "RRI");
+                set.setDrawValues(false);
+                data.addDataSet(set);
             }
-            @Override
-            public void Connected() {
 
-            }
+            List<Integer> rriArray = biometricManager.getRRIArray();
+
+            int passtime = rriArray.stream().reduce(0, (base, value) -> base + value);
+
+            data.addEntry(new Entry(passtime, num), 0);
+
+            rriGraph.notifyDataSetChanged();
+            rriGraph.setVisibleXRangeMaximum(20000);
+            rriGraph.setVisibleXRangeMinimum(20000);
+            rriGraph.moveViewToX(passtime);
         });
     }
 }
