@@ -327,7 +327,7 @@ public class ExperimentFragment extends Fragment {
 
         ILineDataSet set = data.getDataSetByIndex(0);
         if (set == null) {
-            set = new LineDataSet(null, "RRI");
+            set = new LineDataSet(null, "Emg");
             set.setDrawValues(false);
             data.addDataSet(set);
         }
