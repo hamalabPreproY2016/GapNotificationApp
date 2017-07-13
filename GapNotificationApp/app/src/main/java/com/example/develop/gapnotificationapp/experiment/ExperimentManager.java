@@ -3,9 +3,7 @@ package com.example.develop.gapnotificationapp.experiment;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.develop.gapnotificationapp.Ble.BleContent;
 import com.example.develop.gapnotificationapp.Ble.BleContentManager;
-import com.example.develop.gapnotificationapp.Ble.NotificationListener;
 import com.example.develop.gapnotificationapp.Ble.TestBleContent;
 import com.example.develop.gapnotificationapp.CSVManager;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
@@ -19,9 +17,6 @@ import com.example.develop.gapnotificationapp.model.Session;
 import com.example.develop.gapnotificationapp.model.Voice;
 import com.example.develop.gapnotificationapp.model.mve;
 import com.example.develop.gapnotificationapp.rest.Pojo.Angry.request.RequestAngry;
-import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.request.RequestPrepareEMG;
-import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseAverage;
-import com.example.develop.gapnotificationapp.rest.Pojo.EmgAdvance.response.ResponseMVE;
 import com.example.develop.gapnotificationapp.rest.RestManager;
 import com.example.develop.gapnotificationapp.util.BinaryInteger;
 import com.example.develop.gapnotificationapp.voice.RealTimeVoiceSlicer;
@@ -32,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,6 +37,15 @@ import retrofit2.Response;
  */
 
 public class ExperimentManager {
+
+    private final CSVManager mveCSVManager;
+    private final CSVManager sessionCSVManager;
+    private final CSVManager responseCSVManager;
+    private final CSVManager emgCSVManager;
+    private final CSVManager voiceCSVManager;
+    private final CSVManager heartrateCSVManager;
+    private final CSVManager faceCSVManager;
+
     public enum Device {VOICE, FACE, HEARTRATE, EMG};
 
     private static final String TAG = "experiment";
@@ -55,8 +57,8 @@ public class ExperimentManager {
     private mve _MVE = new mve();
     public static final int STOCK_HEARTRATE_SIZE = 256;
 
-    private List<Voice> _voiceData = new ArrayList<>(); // 音声データ
-    private List<Face> _faceData = new ArrayList<>(); // カメラデータ
+    private Voice _voiceData; // 音声データ
+    private Face _faceData; // カメラデータ
     private List<Heartrate> _heartRateData = new ArrayList<>(); // 心拍データ
     private List<Emg> _emgData = new ArrayList<>(); // 筋電データ
     private int _nextSendBeginEMG; // 次に送る筋電データリストの先頭Index
@@ -82,6 +84,26 @@ public class ExperimentManager {
         _startTime = -1;
         _bleManager = GapNotificationApplication.getBleContentManager(_context);
         _MVE.value = -1;
+
+        // 実験ディレクトリを取得する
+        _rootDirectory = _fileManager.getNewLogDirectory();
+        Log.d(TAG, _rootDirectory.toString());
+
+        File csvDir = CSVManager.createCSVDirectory(_rootDirectory);
+
+        faceCSVManager = new CSVManager(new File(csvDir, "face.csv"));
+
+        heartrateCSVManager = new CSVManager(new File(csvDir, "heartrate.csv"));
+
+        voiceCSVManager = new CSVManager(new File(csvDir, "voice.csv"));
+
+        emgCSVManager = new CSVManager(new File(csvDir, "emg.csv"));
+
+        responseCSVManager = new CSVManager(new File(csvDir, "responseAngry.csv"));
+
+        sessionCSVManager = new CSVManager(new File(csvDir, "session.csv"));
+
+        mveCSVManager = new CSVManager(new File(csvDir, "mve.csv"));
     }
     // 心拍ストック開始
     public boolean StartStockHeart(){
@@ -92,19 +114,12 @@ public class ExperimentManager {
 
 
        // 心拍リスナーをセット
-        _bleManager.getHeartRate().setNotificationListener(new NotificationListener() {
-            @Override
-            public void getNotification(byte[] bytes) {
-                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-                setHeartRateCache(data);
-                // 十分ストックが貯まったら通知する
-                if (_heartRateData.size() > STOCK_HEARTRATE_SIZE && _listener != null){
-                    _listener.GetEnoughStockHeartRate();
-                }
-            }
-            @Override
-            public void Connected() {
-
+        _bleManager.getHeartRate().setNotificationListener(bytes->{
+            Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+            setHeartRateCache(data);
+            // 十分ストックが貯まったら通知する
+            if (_heartRateData.size() > STOCK_HEARTRATE_SIZE && _listener != null){
+                _listener.GetEnoughStockHeartRate();
             }
         });
         // 実験開始時間をセット
@@ -157,9 +172,6 @@ public class ExperimentManager {
         // 現在時刻を実験開始時刻にセット
         _startTime = System.currentTimeMillis();
 
-        // 実験ディレクトリを取得する
-        _rootDirectory = _fileManager.getNewLogDirectory();
-        Log.d(TAG, _rootDirectory.toString());
         // 送信する筋電データリストの先頭インデクスを初期化
         _nextSendBeginEMG = 0;
 
@@ -188,30 +200,19 @@ public class ExperimentManager {
 
 //
 //        // 心拍リスナーをセット
-        _bleManager.getHeartRate().setNotificationListener(new NotificationListener() {
-            @Override
-            public void getNotification(byte[] bytes) {
-                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-                setHeartRateCache(data);
-            }
-            @Override
-            public void Connected() {
-
-            }
+        _bleManager.getHeartRate().setNotificationListener(bytes -> {
+            Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+            setHeartRateCache(data);
         });
 
 //        // 筋電リスナーをセット
-        _bleManager.getEMG().setNotificationListener(new NotificationListener() {
-            @Override
-            public void getNotification(byte[] bytes) {
-                Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-                setEmgCache(data);
-            }
-            @Override
-            public void Connected() {
-
-            }
+        _bleManager.getEMG().setNotificationListener(bytes->{
+            Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
+            setEmgCache(data);
         });
+
+        mveCSVManager.csvWriteForLine(_MVE);
+
         return true;
     }
 
@@ -224,35 +225,35 @@ public class ExperimentManager {
         _bleManager.getEMG().setNotificationListener(null);
         GapNotificationApplication.getTakePictureRepeater(_context).invalidateCapturePicture();
 
-        File csvDir = CSVManager.createCSVDirectory(_rootDirectory);
-
-        CSVManager faceCSVManager = new CSVManager(new File(csvDir, "face.csv"));
-        faceCSVManager.csvWrite(_faceData);
-
-        CSVManager heartrateCSVManager = new CSVManager(new File(csvDir, "heartrate.csv"));
-        heartrateCSVManager.csvWrite(_heartRateData);
-
-        CSVManager voiceCSVManager = new CSVManager(new File(csvDir, "voice.csv"));
-        voiceCSVManager.csvWrite(_voiceData);
-
-        CSVManager emgCSVManager = new CSVManager(new File(csvDir, "emg.csv"));
-        emgCSVManager.csvWrite(_emgData);
-
-        CSVManager responseCSVManager = new CSVManager(new File(csvDir, "responseAngry.csv"));
-        responseCSVManager.csvWrite(_angryData);
-
-        CSVManager sessionCSVManager = new CSVManager(new File(csvDir, "session.csv"));
-        sessionCSVManager.csvWrite(_sessionTime);
-
-        CSVManager mveCSVManager = new CSVManager(new File(csvDir, "mve.csv"));
-        ArrayList<mve> tmp = new ArrayList<>();
-        tmp.add(_MVE);
-        mveCSVManager.csvWrite(tmp);
+//        File csvDir = CSVManager.createCSVDirectory(_rootDirectory);
+//
+//        CSVManager faceCSVManager = new CSVManager(new File(csvDir, "face.csv"));
+//        faceCSVManager.csvWrit
+//
+// e(_faceData);
+//
+//        CSVManager heartrateCSVManager = new CSVManager(new File(csvDir, "heartrate.csv"));
+//        heartrateCSVManager.csvWrite(_heartRateData);
+//
+//        CSVManager voiceCSVManager = new CSVManager(new File(csvDir, "voice.csv"));
+//        voiceCSVManager.csvWrite(_voiceData);
+//
+//        CSVManager emgCSVManager = new CSVManager(new File(csvDir, "emg.csv"));
+//        emgCSVManager.csvWrite(_emgData);
+//
+//        CSVManager responseCSVManager = new CSVManager(new File(csvDir, "responseAngry.csv"));
+//        responseCSVManager.csvWrite(_angryData);
+//
+//        CSVManager sessionCSVManager = new CSVManager(new File(csvDir, "session.csv"));
+//        sessionCSVManager.csvWrite(_sessionTime);
+//
+//        CSVManager mveCSVManager = new CSVManager(new File(csvDir, "mve.csv"));
     }
 
     // セッションを追加
     public void Session(){
         _sessionTime.add(new Session(getRemmaningTime()));
+        sessionCSVManager.csvWriteForLine(new Session(getRemmaningTime()));
     }
 
     // 音声データを一時的に記憶
@@ -262,7 +263,8 @@ public class ExperimentManager {
         voice.time = Long.toString(getRemmaningTime());
         long current_time = getRemmaningTime();
         // 音声データリストにデータを追加
-        _voiceData.add(voice);
+        _voiceData = voice;
+        voiceCSVManager.csvWriteForLine(voice);
         _flag[Device.VOICE.ordinal()] = true;
         // リスナーを呼び出し
         if (_listener != null) {
@@ -277,7 +279,8 @@ public class ExperimentManager {
         face.file = data;
         face.time = Long.toString(getRemmaningTime());
         // 写真データリストにデータを追加
-        _faceData.add(face);
+        _faceData = face;
+        faceCSVManager.csvWriteForLine(face);
         _flag[Device.FACE.ordinal()] = true;
         // リスナーを呼び出し
         if (_listener != null) {
@@ -293,6 +296,7 @@ public class ExperimentManager {
         heart.value = data.intValue();
         // 心拍データリストにデータを追加
         _heartRateData.add(heart);
+        heartrateCSVManager.csvWriteForLine(heart);
         _flag[Device.HEARTRATE.ordinal()] = true;
         if (_listener != null) {
             _listener.GetHeartRate(heart);
@@ -309,6 +313,7 @@ public class ExperimentManager {
         Log.d(TAG, "data : " + emg.time + ", "+ Integer.toString(emg.value));
         // 筋電データリストにデータを追加
         _emgData.add(emg);
+        emgCSVManager.csvWriteForLine(emg);
         _flag[Device.EMG.ordinal()] = true;
         if (_listener != null) {
             _listener.GetEmg(emg);
@@ -359,14 +364,15 @@ public class ExperimentManager {
         cacheClear();
         // ネットワークに送信する
         _restManager.postAngry(sendJson,
-                _voiceData.get(_voiceData.size() - 1).file.toString(),
-                _faceData.get(_faceData.size() - 1).file.toString(),
+                _voiceData.file.toString(),
+                _faceData.file.toString(),
                 new Callback<ResponseAngry>() {
                     @Override
                     public void onResponse(Call<ResponseAngry> call, Response<ResponseAngry> response) {
                         // Statusコード200番の時にリスナーイベントを走らせる
                         if (response.code() == 200) {
                             _angryData.add(response.body());
+                            responseCSVManager.csvWriteForLine(response.body());
                             if(_listener != null) {
                                 _listener.GetAngry(response.body());
                             }

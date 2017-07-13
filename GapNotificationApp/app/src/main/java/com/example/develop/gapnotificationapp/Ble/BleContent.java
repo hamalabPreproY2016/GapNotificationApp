@@ -3,12 +3,15 @@ package com.example.develop.gapnotificationapp.Ble;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.develop.gapnotificationapp.Ble.NotificationListener;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.R;
 import com.example.develop.gapnotificationapp.util.BinaryInteger;
 import com.polidea.rxandroidble.RxBleConnection;
 import com.polidea.rxandroidble.RxBleDevice;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import rx.Observable;
@@ -33,10 +36,14 @@ public class BleContent {
     private PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
     private Observable<RxBleConnection> connectionObservable;
 
-    protected NotificationListener _listener;
+    protected NotificationListener mNotificationListener;
+    private ChangeStateListener mChangeStateListener;
+    private Timer timer;
+    private boolean isConnect;
+
 
     // コンストラクタ
-    public BleContent(Context context, String mac_address, UUID WriteUUID, UUID NotifiUUID) {
+    public BleContent(Context context, String mac_address, UUID WriteUUID, UUID NotifiUUID, boolean maintainConnect) {
         _mac_address = mac_address;
         _context = context;
         _writeUUID = WriteUUID;
@@ -47,9 +54,26 @@ public class BleContent {
         byte[] tmp = new byte[1];
         tmp[0] = 0;
         _writeBytes = tmp;
-        _listener = null;
+        mNotificationListener = null;
+
+        mChangeStateListener = state -> {};
+        mNotificationListener = bytes-> {};
 
         Log.d(TAG, "create BleContent");
+        isConnect = false;
+        // 3秒間ごとにBLEの時間を監視して接続されていなければ再接続を行う
+        if (maintainConnect) {
+            timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    // 接続すべき状態なのに接続がされていなければ再接続を行う
+                    if (isConnect && _bleDevice.getConnectionState() == RxBleConnection.RxBleConnectionState.DISCONNECTED){
+                        Connect();
+                    }
+                }
+            }, 0, 3000);
+        }
     }
     public BleContent(){
 
@@ -59,7 +83,7 @@ public class BleContent {
         this(context,
                 mac_address,
                 UUID.fromString(context.getResources().getString(R.string.uuid_write)),
-                UUID.fromString(context.getResources().getString(R.string.uuid_notify)));
+                UUID.fromString(context.getResources().getString(R.string.uuid_notify)), true);
 //        this(context,
 //                mac_address,
 //                UUID.fromString("569a2001-b87F-490c-92cb-11ba5ea5167c"),
@@ -67,6 +91,15 @@ public class BleContent {
     }
     // Observableの作成
     private Observable<RxBleConnection> prepareConnectionObservable() {
+        _bleDevice.observeConnectionStateChanges()
+                .subscribe(
+                        (RxBleConnection.RxBleConnectionState connectionState) -> {
+                            mChangeStateListener.ChangeNotification(_bleDevice.getConnectionState());
+                        },
+                        throwable -> {
+                            // Handle an error here.
+                        }
+                );
         return _bleDevice
                 .establishConnection(_context, false)
                 .takeUntil(disconnectTriggerSubject);
@@ -96,29 +129,46 @@ public class BleContent {
     }
     public void ConnectRecive(){
         connectionObservable.subscribe(rxBleConnection -> {
-            if (_listener != null) {
-                _listener.Connected();
-            }
+
         });
     }
     // 接続
     public void Connect(){
+        isConnect = true;
         Log.d(TAG, "きてる");
-        connectionObservable
+//        prepareConnectionObservable()
+//                .subscribe(connectionState -> {
+//                            // Process your way.
+//                            Log.d(TAG, connectionState.toString());
+//                        },
+//                        throwable -> {
+//                            // Handle an error here.
+//                        });
+        prepareConnectionObservable()
                 .flatMap(rxBleConnection -> rxBleConnection.setupNotification(_notifUUID))
-                .doOnNext(notificationObservable -> {
-                    // Notification has been set up
-                })
-                .flatMap(notificationObservable -> notificationObservable) // <-- Notification has been set up, now observe value changes.
-                .subscribe(
-                        bytes -> {
-                                Log.d(TAG, "value : " + Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
-                                _listener.getNotification(bytes);
-                        },
-                        throwable -> {
-                            // Handle an error here.
-                        }
-                );
+                .doOnNext(notificationObservable -> {})
+                .flatMap(notificationObservable -> notificationObservable)
+                .subscribe(bytes -> {
+                    mNotificationListener.getNotification(bytes);
+                    Log.d(TAG, Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
+                },throwable -> {
+
+                });
+//        connectionObservable
+//                .flatMap(rxBleConnection -> rxBleConnection.setupNotification(_notifUUID))
+//                .doOnNext(notificationObservable -> {
+//                    // Notification has been set up
+//                })
+//                .flatMap(notificationObservable -> notificationObservable) // <-- Notification has been set up, now observe value changes.
+//                .subscribe(
+//                        bytes -> {
+//                                Log.d(TAG, "value : " + Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
+//                                mNotificationListener.getNotification(bytes);
+//                        },
+//                        throwable -> {
+//                            // Handle an error here.
+//                        }
+//                );
 //                .flatMap(rxBleConnection -> rxBleConnection.writeCharacteristic(_writeUUID, this._writeBytes)
 //                        .flatMap(bytes ->rxBleConnection.setupNotification(_notifUUID))
 //                        .doOnNext(notificationObservable -> {
@@ -131,9 +181,9 @@ public class BleContent {
 //                .subscribe(
 //                        bytes -> {
 //                            Log.d(TAG, "get notification data");
-//                            if (_listener != null) {
+//                            if (mNotificationListener != null) {
 //                                Log.d(TAG, "value : " + Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
-//                                _listener.getNotification(bytes);
+//                                mNotificationListener.getNotification(bytes);
 //                            }
 //                        },
 //                        throwable -> {
@@ -143,7 +193,9 @@ public class BleContent {
     }
     // 接続解除
     public void DisConnect(){
+
         disconnectTriggerSubject.onNext(null);
+        isConnect = false;
     }
     // 接続中
     public boolean Connected(){
@@ -156,7 +208,10 @@ public class BleContent {
 
     // 通知時のリスナーをセットする
     public void setNotificationListener(NotificationListener listener) {
-        _listener = listener;
+        mNotificationListener = listener;
     }
 
+    public void SetChangeNotificationListener(ChangeStateListener listener){
+        mChangeStateListener = listener;
+    }
 }

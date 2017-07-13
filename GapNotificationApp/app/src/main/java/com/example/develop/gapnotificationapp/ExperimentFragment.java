@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.os.Handler;
-import android.telecom.Call;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.TextureView;
@@ -15,9 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.develop.gapnotificationapp.Ble.BleContent;
 import com.example.develop.gapnotificationapp.Ble.BleContentManager;
-import com.example.develop.gapnotificationapp.Ble.TestBleContent;
 import com.example.develop.gapnotificationapp.camera.Camera;
 import com.example.develop.gapnotificationapp.experiment.ExperimentManager;
 import com.example.develop.gapnotificationapp.experiment.ExperimentManagerListener;
@@ -30,7 +27,6 @@ import com.example.develop.gapnotificationapp.model.ResponseAngry;
 import com.example.develop.gapnotificationapp.model.Voice;
 import com.example.develop.gapnotificationapp.rest.Pojo.CheckerPojo;
 import com.example.develop.gapnotificationapp.rest.RestManager;
-import com.example.develop.gapnotificationapp.util.BinaryInteger;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -50,7 +46,6 @@ import org.apache.commons.lang.ArrayUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -302,8 +297,8 @@ public class ExperimentFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        if (timer != null) {
-            timer.cancel();
+        if (serverCheckTimer != null) {
+            serverCheckTimer.cancel();
             _expManager.Cancel();
         }
     }
@@ -332,7 +327,7 @@ public class ExperimentFragment extends Fragment {
 
         ILineDataSet set = data.getDataSetByIndex(0);
         if (set == null) {
-            set = new LineDataSet(null, "RRI");
+            set = new LineDataSet(null, "Emg");
             set.setDrawValues(false);
             data.addDataSet(set);
         }
@@ -601,12 +596,9 @@ public class ExperimentFragment extends Fragment {
         _expManager.SetListener(new ExperimentManagerListener() {
             @Override
             public void GetHeartRate(Heartrate data) {
-//                addPojoDataToHeartrateGraph(data);
-                handler.post(new Runnable() {
-                    public void run() {
-                        heartRateStatus.setText("測定中 残り : " + Integer.toString(ExperimentManager.STOCK_HEARTRATE_SIZE - _expManager.GetHeartRateSize()));
-                    }
-                });
+                heartRateStatus.post(()->
+                    heartRateStatus.setText("測定中 残り : " + Integer.toString(ExperimentManager.STOCK_HEARTRATE_SIZE - _expManager.GetHeartRateSize()))
+                );
                 Log.d("experiment", Integer.toString(_expManager.GetHeartRateSize()));
             }
 
@@ -637,12 +629,10 @@ public class ExperimentFragment extends Fragment {
 
             @Override
             public void GetEnoughStockHeartRate() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        getHeartRateToggle.setEnabled(true);
-                        heartRateStatus.setText("測定完了");
-                        _startButton.setEnabled(_expManager.CanStart());
-                    }
+                handler.post(()-> {
+                    getHeartRateToggle.setEnabled(true);
+                    heartRateStatus.setText("測定完了");
+                    _startButton.setEnabled(_expManager.CanStart());
                 });
             }
         });
@@ -654,23 +644,20 @@ public class ExperimentFragment extends Fragment {
         _expManager.Session();
     }
 
-    private Timer timer;
+    private Timer serverCheckTimer;
     private void serverChecker(){
         RestManager restManager = new RestManager();
-        timer = new Timer(true);
+        serverCheckTimer = new Timer(true);
         // 1秒ごとに筋電のテストデータを作成
-        timer.schedule(new TimerTask() {
+        serverCheckTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 restManager.serverCheck(new Callback<CheckerPojo>() {
                     @Override
                     public void onResponse(retrofit2.Call<CheckerPojo> call, Response<CheckerPojo> response) {
-                        _apiStatusView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                _apiStatusView.setText(getString(R.string.experiment_server_status, response.code()));
-                            }
-                        });
+                        _apiStatusView.post(
+                                ()-> _apiStatusView.setText(getString(R.string.experiment_server_status, response.code()))
+                        );
                     }
 
                     @Override
@@ -680,5 +667,11 @@ public class ExperimentFragment extends Fragment {
                 });
             }
         }, 0, 3000);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        serverCheckTimer.cancel();
     }
 }

@@ -1,5 +1,7 @@
 package com.example.develop.gapnotificationapp;
 
+import android.util.Log;
+
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
@@ -19,6 +21,10 @@ import java.util.List;
 public class CSVManager {
     File mFile;
 
+    FileOutputStream output = null;
+    OutputStreamWriter oWriter = null;
+    CSVWriter csvWriter = null;
+
     public static File createCSVDirectory(File parentDir) {
         File csvDir = new File(parentDir, "csv");
 
@@ -37,23 +43,15 @@ public class CSVManager {
         mFile = file;
     }
 
-    public void csvWrite(List<? extends CSVLineParser> list) {
-        FileOutputStream output = null;
-        OutputStreamWriter oWriter = null;
-        CSVWriter csvWriter = null;
+    public void csvWriteForLine(CSVLineParser obj) {
         try {
-            output = new FileOutputStream(mFile);
+            output = new FileOutputStream(mFile, true);
             oWriter = new OutputStreamWriter(output);
             csvWriter = new CSVWriter(oWriter);
-            CSVWriter finalCsvWriter = csvWriter;
-            list.forEach(s -> {
-                finalCsvWriter.writeNext(s.parseCSVLine(this));
-            });
-            csvWriter.close();
-            oWriter.close();
+
+            csvWriter.writeNext(obj.parseCSVLine(this));
+            Log.d("csvWrite", obj.parseCSVLine(this)[0]);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -70,6 +68,15 @@ public class CSVManager {
                 e.printStackTrace();
             }
         }
+
+    }
+
+    public void csvWrite(List<? extends CSVLineParser> list) {
+
+        CSVWriter finalCsvWriter = csvWriter;
+        list.forEach(s -> {
+            finalCsvWriter.writeNext(s.parseCSVLine(this));
+        });
     }
 
     public List csvRead(ParseObjectFactory factory) {
@@ -111,6 +118,27 @@ public class CSVManager {
         }
 
         return retList;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            super.finalize();
+        } finally {
+            try {
+                if (csvWriter != null) {
+                    csvWriter.close();
+                }
+                if (oWriter != null) {
+                    oWriter.close();
+                }
+                if (output != null) {
+                    output.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public interface ParseObjectFactory {
