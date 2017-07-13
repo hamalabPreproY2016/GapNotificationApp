@@ -57,8 +57,8 @@ public class ExperimentManager {
     private mve _MVE = new mve();
     public static final int STOCK_HEARTRATE_SIZE = 256;
 
-    private List<Voice> _voiceData = new ArrayList<>(); // 音声データ
-    private List<Face> _faceData = new ArrayList<>(); // カメラデータ
+    private Voice _voiceData; // 音声データ
+    private Face _faceData; // カメラデータ
     private List<Heartrate> _heartRateData = new ArrayList<>(); // 心拍データ
     private List<Emg> _emgData = new ArrayList<>(); // 筋電データ
     private int _nextSendBeginEMG; // 次に送る筋電データリストの先頭Index
@@ -263,7 +263,7 @@ public class ExperimentManager {
         voice.time = Long.toString(getRemmaningTime());
         long current_time = getRemmaningTime();
         // 音声データリストにデータを追加
-        _voiceData.add(voice);
+        _voiceData = voice;
         voiceCSVManager.csvWriteForLine(voice);
         _flag[Device.VOICE.ordinal()] = true;
         // リスナーを呼び出し
@@ -279,7 +279,7 @@ public class ExperimentManager {
         face.file = data;
         face.time = Long.toString(getRemmaningTime());
         // 写真データリストにデータを追加
-        _faceData.add(face);
+        _faceData = face;
         faceCSVManager.csvWriteForLine(face);
         _flag[Device.FACE.ordinal()] = true;
         // リスナーを呼び出し
@@ -364,8 +364,8 @@ public class ExperimentManager {
         cacheClear();
         // ネットワークに送信する
         _restManager.postAngry(sendJson,
-                _voiceData.get(_voiceData.size() - 1).file.toString(),
-                _faceData.get(_faceData.size() - 1).file.toString(),
+                _voiceData.file.toString(),
+                _faceData.file.toString(),
                 new Callback<ResponseAngry>() {
                     @Override
                     public void onResponse(Call<ResponseAngry> call, Response<ResponseAngry> response) {
