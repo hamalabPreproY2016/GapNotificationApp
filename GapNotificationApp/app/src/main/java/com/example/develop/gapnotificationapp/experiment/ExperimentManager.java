@@ -130,7 +130,7 @@ public class ExperimentManager {
             Random r = new Random();
             for (int i = 0; i < STOCK_HEARTRATE_SIZE; i ++){
                 short value = (short)(r.nextInt(300) + 1);
-                setHeartRateCache(value);
+                setHeartRateCacheForStock(value);
             }
         }
 
@@ -167,7 +167,9 @@ public class ExperimentManager {
         // 実験開始以前の心拍データの取得時間を実験開始時刻をエポックタイムとしたマイナス値にする
         for(int i = 0; i < _heartRateData.size(); i++){
             long past =  Long.parseLong(_heartRateData.get(i).time);
-            _heartRateData.get(i).time = Long.toString(past - epoch);
+            Heartrate heartrate = _heartRateData.get(i);
+            heartrate.time = Long.toString(past - epoch);
+            heartrateCSVManager.csvWriteForLine(heartrate);
         }
         // 現在時刻を実験開始時刻にセット
         _startTime = System.currentTimeMillis();
@@ -286,6 +288,21 @@ public class ExperimentManager {
         if (_listener != null) {
             _listener.GetFace(face);
         }
+        sendApiServer();
+    }
+
+    // 心拍データを一時的に記憶
+    private void setHeartRateCacheForStock(Short data){
+        Heartrate heart = new Heartrate();
+        heart.time = Long.toString(getRemmaningTime());
+        heart.value = data.intValue();
+        // 心拍データリストにデータを追加
+        _heartRateData.add(heart);
+        _flag[Device.HEARTRATE.ordinal()] = true;
+        if (_listener != null) {
+            _listener.GetHeartRate(heart);
+        }
+        Log.d(TAG, "get heart rate : " + heart.value.toString() + " time : " + heart.time);
         sendApiServer();
     }
 
