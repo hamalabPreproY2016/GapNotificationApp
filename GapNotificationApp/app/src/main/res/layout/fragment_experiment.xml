@@ -7,101 +7,86 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
 
-            <TextureView
-                android:id="@+id/camera_preview"
-                android:layout_width="match_parent"
-                android:layout_height="1dp" />
-        </FrameLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minWidth="170dp"
                 android:orientation="vertical">
+
+                <TextureView
+                    android:id="@+id/camera_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp" />
+
                 <Button
                     android:id="@+id/mve_toggle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="MVE取得を開始"/>
+                    android:text="MVE取得を開始" />
+
                 <TextView
                     android:id="@+id/mve_status_notification"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="mve 取得無し"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                    android:text="mve 取得無し" />
+
                 <Button
                     android:id="@+id/startHeartRateStorage"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="事前心拍間隔測定開始"/>
+                    android:text="事前心拍間隔測定開始" />
+
                 <TextView
                     android:id="@+id/heartrate_status"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="心拍ストックなし"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginRight="10dp"
-                android:orientation="vertical"
-                android:layout_marginLeft="10px">
-                <TextView
-                    android:id="@+id/experiment_api_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/experiment_server_status" />
+                    android:text="心拍ストックなし" />
+
                 <TextView
                     android:id="@+id/experiment_ble_heartrate"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/experiment_heartrate_ble"/>
+                    android:text="@string/experiment_heartrate_ble" />
+
                 <TextView
                     android:id="@+id/experiment_ble_emg"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/experiment_emg_ble"/>
-            </LinearLayout>
+                    android:text="@string/experiment_emg_ble" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/experiment_api_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/experiment_server_status" />
+
                 <TextView
                     android:id="@+id/experiment_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/experiment_id" />
+
+                <Button
+                    android:id="@+id/insert_section"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/experiment_id"/>
+                    android:text="セクション" />
+
+                <Button
+                    android:id="@+id/experiment_start_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="実験スタート" />
+
 
             </LinearLayout>
-        </LinearLayout>
-
-
-
-
-
-        <Button
-            android:id="@+id/experiment_start_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="じっけん、すたーと！" />
-        <Button
-            android:id="@+id/insert_section"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="セクション" />
+        </ScrollView>
 
         <ScrollView
             android:layout_width="match_parent"
