@@ -105,6 +105,8 @@ public class ExperimentFragment extends Fragment {
 
     public File csvDir = null;
 
+    private boolean vibration = false;
+
     Camera camera;
 
     private ExperimentManager _expManager;
@@ -254,6 +256,9 @@ public class ExperimentFragment extends Fragment {
                 public void GetAngry(ResponseAngry response) {
                     addPojoDataToAngryGraph(response);
 
+                    vibration(response.angryGap);
+
+                    Log.d("ResponseAngry", "angryLook:"+ response.angryLook +", angryBody:" + response.angryBody + ", Gap:" + response.angryGap);
 //                    float fSendTime = Float.parseFloat(response.sendTime);
 //
 //                    BarData data = angryGraph.getBarData();
@@ -293,6 +298,13 @@ public class ExperimentFragment extends Fragment {
             _startButton.setText("すたーと");
         }
         isRunning = !isRunning;
+    }
+
+    private void vibration(boolean enable) {
+        if (enable != vibration) {
+            GapNotificationApplication.getBleContentManager(getContext()).getMortor().Write(new byte[]{(byte) (enable ? 1 : 0)});
+            vibration = enable;
+        }
     }
     @Override
     public void onPause() {
@@ -668,6 +680,7 @@ public class ExperimentFragment extends Fragment {
             }
         }, 0, 3000);
     }
+
 
     @Override
     public void onDestroyView() {

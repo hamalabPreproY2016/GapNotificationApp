@@ -384,7 +384,7 @@ public class ExperimentManager {
 
                     @Override
                     public void onFailure(Call<ResponseAngry> call, Throwable t) {
-
+                        Log.d(TAG, "failed:" + t);
                     }
                 });
 

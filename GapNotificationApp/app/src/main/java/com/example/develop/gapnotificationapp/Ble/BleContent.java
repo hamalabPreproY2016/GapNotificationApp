@@ -3,12 +3,13 @@ package com.example.develop.gapnotificationapp.Ble;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.develop.gapnotificationapp.Ble.NotificationListener;
 import com.example.develop.gapnotificationapp.GapNotificationApplication;
 import com.example.develop.gapnotificationapp.R;
 import com.example.develop.gapnotificationapp.util.BinaryInteger;
+import com.example.develop.gapnotificationapp.util.HexString;
 import com.polidea.rxandroidble.RxBleConnection;
 import com.polidea.rxandroidble.RxBleDevice;
+import com.polidea.rxandroidble.utils.ConnectionSharingAdapter;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -34,14 +35,13 @@ public class BleContent {
     private byte[] _writeBytes;
     private RxBleDevice _bleDevice;
     private PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
-    private Observable<RxBleConnection> connectionObservable;
 
     protected NotificationListener mNotificationListener;
     private ChangeStateListener mChangeStateListener;
     private Timer timer;
     private boolean isConnect;
 
-
+    private Observable<RxBleConnection> connectionObservable;
     // コンストラクタ
     public BleContent(Context context, String mac_address, UUID WriteUUID, UUID NotifiUUID, boolean maintainConnect) {
         _mac_address = mac_address;
@@ -100,32 +100,12 @@ public class BleContent {
                             // Handle an error here.
                         }
                 );
-        return _bleDevice
-                .establishConnection(_context, false)
-                .takeUntil(disconnectTriggerSubject);
-    }
-    // 書込みデータをセット
-    public void Write(byte[] WriteData){
-        _writeBytes = WriteData;
-        connectionObservable.flatMap(rxBleConnection -> rxBleConnection.writeCharacteristic(_writeUUID, this._writeBytes)
-                .flatMap(bytes ->rxBleConnection.setupNotification(_notifUUID))
-                .doOnNext(notificationObservable -> {
-                    Log.d(TAG, "Notification has been set up");
-                    // Notification has been set up
-                })
-                .flatMap(notificationObservable -> notificationObservable)
-        ).subscribe(
-                bytes -> {
-                    Log.d(TAG, "get notification data");
-                    if (_listener != null) {
-                        Log.d(TAG, "value : " + Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
-                        _listener.getNotification(bytes);
-                    }
-                },
-                throwable -> {
-                    // Handle an error here.
-                }
-        );
+//        return _bleDevice
+//                .establishConnection(_context, false)
+//                .takeUntil(disconnectTriggerSubject);
+        return  _bleDevice.establishConnection(_context, false)
+                .takeUntil(disconnectTriggerSubject)
+                .compose(new ConnectionSharingAdapter());
     }
     public void ConnectRecive(){
         connectionObservable.subscribe(rxBleConnection -> {
@@ -165,6 +145,17 @@ public class BleContent {
 //                                Log.d(TAG, "value : " + Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
 //                                mNotificationListener.getNotification(bytes);
 //                        },
+//                       connectionObservable
+//                .flatMap(rxBleConnection -> rxBleConnection.setupNotification(_notifUUID))
+//                .doOnNext(notificationObservable -> {
+//                    // Notification has been set up
+//                })
+//                .flatMap(notificationObservable -> notificationObservable) // <-- Notification has been set up, now observe value changes.
+//                .subscribe(
+//                        bytes -> {
+//                                Log.d(TAG, "value : " + Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
+//                                mNotificationListener.getNotification(bytes);
+//                        },
 //                        throwable -> {
 //                            // Handle an error here.
 //                        }
@@ -190,6 +181,59 @@ public class BleContent {
 //                            // Handle an error here.
 //                        }
 //                );
+    }
+    public void Notification(){
+        connectionObservable
+                .flatMap(rxBleConnection -> rxBleConnection.setupNotification(_notifUUID))
+                .doOnNext(notificationObservable -> {})
+                .flatMap(notificationObservable -> notificationObservable)
+                .subscribe(bytes -> {
+                    mNotificationListener.getNotification(bytes);
+                    Log.d(TAG, Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
+                },throwable -> {
+
+                });
+    }
+    public void Write(byte[] Bytes){
+        Log.d(TAG, "Write : " + HexString.bytesToHex(Bytes));
+//        connectionObservable
+//                .flatMap(rxBleConnection -> rxBleConnection.writeCharacteristic(_writeUUID, Bytes))
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(bytes -> {
+//                            Log.d(TAG, HexString.bytesToHex(Bytes));
+//
+//                        },
+//                        throwable -> {
+//                            // Handle an error here.
+//                            Log.d(TAG, throwable.toString());
+//                        }
+//                );
+        connectionObservable.flatMap(rxBleConnection -> rxBleConnection.writeCharacteristic(_writeUUID, Bytes)
+                .flatMap(bytes ->rxBleConnection.setupNotification(_notifUUID))
+                .doOnNext(notificationObservable -> {
+                    Log.d(TAG, "Notification has been set up");
+                    // Notification has been set up
+                })
+                .flatMap(notificationObservable -> notificationObservable)
+
+        )
+                .subscribe(
+                        bytes -> {
+                            Log.d(TAG, "get notification data");
+                            Log.d(TAG, "value : " + Integer.toString(BinaryInteger.TwoByteToInteger(bytes)));
+
+                            if (mNotificationListener != null) {
+                                mNotificationListener.getNotification(bytes);
+                            }
+                        },
+                        throwable -> {
+                            // Handle an error here.
+                        }
+                );
+    }
+    public void WriteAndNotification(byte[] bytes){
+        Write(bytes);
+        Notification();
     }
     // 接続解除
     public void DisConnect(){
