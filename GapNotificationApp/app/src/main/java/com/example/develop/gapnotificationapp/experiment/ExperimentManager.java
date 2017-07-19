@@ -116,7 +116,7 @@ public class ExperimentManager {
        // 心拍リスナーをセット
         _bleManager.getHeartRate().setNotificationListener(bytes->{
             Short data = (short) BinaryInteger.TwoByteToInteger(bytes);
-            setHeartRateCache(data);
+            setHeartRateCacheForStock(data);
             // 十分ストックが貯まったら通知する
             if (_heartRateData.size() > STOCK_HEARTRATE_SIZE && _listener != null){
                 _listener.GetEnoughStockHeartRate();
